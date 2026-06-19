@@ -20,6 +20,7 @@ import { Route as AuthenticatedPotrerosRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedPesadasRouteImport } from './routes/_authenticated/pesadas'
 import { Route as AuthenticatedMovimientosRouteImport } from './routes/_authenticated/movimientos'
 import { Route as AuthenticatedMangaRouteImport } from './routes/_authenticated/manga'
+import { Route as AuthenticatedInfraestructuraRouteImport } from './routes/_authenticated/infraestructura'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
 import { Route as AuthenticatedForrajesRouteImport } from './routes/_authenticated/forrajes'
 import { Route as AuthenticatedFinanzasRouteImport } from './routes/_authenticated/finanzas'
@@ -84,6 +85,12 @@ const AuthenticatedMangaRoute = AuthenticatedMangaRouteImport.update({
   path: '/manga',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInfraestructuraRoute =
+  AuthenticatedInfraestructuraRouteImport.update({
+    id: '/infraestructura',
+    path: '/infraestructura',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   id: '/ia',
   path: '/ia',
@@ -131,6 +138,7 @@ export interface FileRoutesByFullPath {
   '/finanzas': typeof AuthenticatedFinanzasRoute
   '/forrajes': typeof AuthenticatedForrajesRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/infraestructura': typeof AuthenticatedInfraestructuraRoute
   '/manga': typeof AuthenticatedMangaRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
   '/pesadas': typeof AuthenticatedPesadasRoute
@@ -150,6 +158,7 @@ export interface FileRoutesByTo {
   '/finanzas': typeof AuthenticatedFinanzasRoute
   '/forrajes': typeof AuthenticatedForrajesRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/infraestructura': typeof AuthenticatedInfraestructuraRoute
   '/manga': typeof AuthenticatedMangaRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
   '/pesadas': typeof AuthenticatedPesadasRoute
@@ -171,6 +180,7 @@ export interface FileRoutesById {
   '/_authenticated/finanzas': typeof AuthenticatedFinanzasRoute
   '/_authenticated/forrajes': typeof AuthenticatedForrajesRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
+  '/_authenticated/infraestructura': typeof AuthenticatedInfraestructuraRoute
   '/_authenticated/manga': typeof AuthenticatedMangaRoute
   '/_authenticated/movimientos': typeof AuthenticatedMovimientosRoute
   '/_authenticated/pesadas': typeof AuthenticatedPesadasRoute
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
     | '/finanzas'
     | '/forrajes'
     | '/ia'
+    | '/infraestructura'
     | '/manga'
     | '/movimientos'
     | '/pesadas'
@@ -211,6 +222,7 @@ export interface FileRouteTypes {
     | '/finanzas'
     | '/forrajes'
     | '/ia'
+    | '/infraestructura'
     | '/manga'
     | '/movimientos'
     | '/pesadas'
@@ -231,6 +243,7 @@ export interface FileRouteTypes {
     | '/_authenticated/finanzas'
     | '/_authenticated/forrajes'
     | '/_authenticated/ia'
+    | '/_authenticated/infraestructura'
     | '/_authenticated/manga'
     | '/_authenticated/movimientos'
     | '/_authenticated/pesadas'
@@ -328,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMangaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/infraestructura': {
+      id: '/_authenticated/infraestructura'
+      path: '/infraestructura'
+      fullPath: '/infraestructura'
+      preLoaderRoute: typeof AuthenticatedInfraestructuraRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ia': {
       id: '/_authenticated/ia'
       path: '/ia'
@@ -400,6 +420,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedFinanzasRoute: typeof AuthenticatedFinanzasRoute
   AuthenticatedForrajesRoute: typeof AuthenticatedForrajesRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
+  AuthenticatedInfraestructuraRoute: typeof AuthenticatedInfraestructuraRoute
   AuthenticatedMangaRoute: typeof AuthenticatedMangaRoute
   AuthenticatedMovimientosRoute: typeof AuthenticatedMovimientosRoute
   AuthenticatedPesadasRoute: typeof AuthenticatedPesadasRoute
@@ -415,6 +436,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedFinanzasRoute: AuthenticatedFinanzasRoute,
   AuthenticatedForrajesRoute: AuthenticatedForrajesRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
+  AuthenticatedInfraestructuraRoute: AuthenticatedInfraestructuraRoute,
   AuthenticatedMangaRoute: AuthenticatedMangaRoute,
   AuthenticatedMovimientosRoute: AuthenticatedMovimientosRoute,
   AuthenticatedPesadasRoute: AuthenticatedPesadasRoute,
