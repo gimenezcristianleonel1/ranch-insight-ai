@@ -26,6 +26,7 @@ import { Route as AuthenticatedForrajesRouteImport } from './routes/_authenticat
 import { Route as AuthenticatedFinanzasRouteImport } from './routes/_authenticated/finanzas'
 import { Route as AuthenticatedEstablecimientosRouteImport } from './routes/_authenticated/establecimientos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAuditoriaRouteImport } from './routes/_authenticated/auditoria'
 import { Route as AuthenticatedAnimalesRouteImport } from './routes/_authenticated/animales'
 import { Route as AuthenticatedAnimalesIdRouteImport } from './routes/_authenticated/animales.$id'
 
@@ -117,6 +118,11 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedAuditoriaRoute = AuthenticatedAuditoriaRouteImport.update({
+  id: '/auditoria',
+  path: '/auditoria',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedAnimalesRoute = AuthenticatedAnimalesRouteImport.update({
   id: '/animales',
   path: '/animales',
@@ -133,6 +139,7 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/animales': typeof AuthenticatedAnimalesRouteWithChildren
+  '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/establecimientos': typeof AuthenticatedEstablecimientosRoute
   '/finanzas': typeof AuthenticatedFinanzasRoute
@@ -153,6 +160,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/animales': typeof AuthenticatedAnimalesRouteWithChildren
+  '/auditoria': typeof AuthenticatedAuditoriaRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/establecimientos': typeof AuthenticatedEstablecimientosRoute
   '/finanzas': typeof AuthenticatedFinanzasRoute
@@ -175,6 +183,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/animales': typeof AuthenticatedAnimalesRouteWithChildren
+  '/_authenticated/auditoria': typeof AuthenticatedAuditoriaRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/establecimientos': typeof AuthenticatedEstablecimientosRoute
   '/_authenticated/finanzas': typeof AuthenticatedFinanzasRoute
@@ -197,6 +206,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/animales'
+    | '/auditoria'
     | '/dashboard'
     | '/establecimientos'
     | '/finanzas'
@@ -217,6 +227,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/animales'
+    | '/auditoria'
     | '/dashboard'
     | '/establecimientos'
     | '/finanzas'
@@ -238,6 +249,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/sitemap.xml'
     | '/_authenticated/animales'
+    | '/_authenticated/auditoria'
     | '/_authenticated/dashboard'
     | '/_authenticated/establecimientos'
     | '/_authenticated/finanzas'
@@ -383,6 +395,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/auditoria': {
+      id: '/_authenticated/auditoria'
+      path: '/auditoria'
+      fullPath: '/auditoria'
+      preLoaderRoute: typeof AuthenticatedAuditoriaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/animales': {
       id: '/_authenticated/animales'
       path: '/animales'
@@ -415,6 +434,7 @@ const AuthenticatedAnimalesRouteWithChildren =
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnimalesRoute: typeof AuthenticatedAnimalesRouteWithChildren
+  AuthenticatedAuditoriaRoute: typeof AuthenticatedAuditoriaRoute
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEstablecimientosRoute: typeof AuthenticatedEstablecimientosRoute
   AuthenticatedFinanzasRoute: typeof AuthenticatedFinanzasRoute
@@ -431,6 +451,7 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnimalesRoute: AuthenticatedAnimalesRouteWithChildren,
+  AuthenticatedAuditoriaRoute: AuthenticatedAuditoriaRoute,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEstablecimientosRoute: AuthenticatedEstablecimientosRoute,
   AuthenticatedFinanzasRoute: AuthenticatedFinanzasRoute,
