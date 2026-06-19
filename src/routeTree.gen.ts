@@ -21,6 +21,7 @@ import { Route as AuthenticatedPesadasRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedMovimientosRouteImport } from './routes/_authenticated/movimientos'
 import { Route as AuthenticatedMangaRouteImport } from './routes/_authenticated/manga'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
+import { Route as AuthenticatedForrajesRouteImport } from './routes/_authenticated/forrajes'
 import { Route as AuthenticatedEstablecimientosRouteImport } from './routes/_authenticated/establecimientos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAnimalesRouteImport } from './routes/_authenticated/animales'
@@ -87,6 +88,11 @@ const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   path: '/ia',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedForrajesRoute = AuthenticatedForrajesRouteImport.update({
+  id: '/forrajes',
+  path: '/forrajes',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedEstablecimientosRoute =
   AuthenticatedEstablecimientosRouteImport.update({
     id: '/establecimientos',
@@ -116,6 +122,7 @@ export interface FileRoutesByFullPath {
   '/animales': typeof AuthenticatedAnimalesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/forrajes': typeof AuthenticatedForrajesRoute
   '/ia': typeof AuthenticatedIaRoute
   '/manga': typeof AuthenticatedMangaRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
@@ -133,6 +140,7 @@ export interface FileRoutesByTo {
   '/animales': typeof AuthenticatedAnimalesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/forrajes': typeof AuthenticatedForrajesRoute
   '/ia': typeof AuthenticatedIaRoute
   '/manga': typeof AuthenticatedMangaRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
@@ -152,6 +160,7 @@ export interface FileRoutesById {
   '/_authenticated/animales': typeof AuthenticatedAnimalesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/_authenticated/forrajes': typeof AuthenticatedForrajesRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
   '/_authenticated/manga': typeof AuthenticatedMangaRoute
   '/_authenticated/movimientos': typeof AuthenticatedMovimientosRoute
@@ -171,6 +180,7 @@ export interface FileRouteTypes {
     | '/animales'
     | '/dashboard'
     | '/establecimientos'
+    | '/forrajes'
     | '/ia'
     | '/manga'
     | '/movimientos'
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/animales'
     | '/dashboard'
     | '/establecimientos'
+    | '/forrajes'
     | '/ia'
     | '/manga'
     | '/movimientos'
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/_authenticated/animales'
     | '/_authenticated/dashboard'
     | '/_authenticated/establecimientos'
+    | '/_authenticated/forrajes'
     | '/_authenticated/ia'
     | '/_authenticated/manga'
     | '/_authenticated/movimientos'
@@ -311,6 +323,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/forrajes': {
+      id: '/_authenticated/forrajes'
+      path: '/forrajes'
+      fullPath: '/forrajes'
+      preLoaderRoute: typeof AuthenticatedForrajesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/establecimientos': {
       id: '/_authenticated/establecimientos'
       path: '/establecimientos'
@@ -359,6 +378,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnimalesRoute: typeof AuthenticatedAnimalesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEstablecimientosRoute: typeof AuthenticatedEstablecimientosRoute
+  AuthenticatedForrajesRoute: typeof AuthenticatedForrajesRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
   AuthenticatedMangaRoute: typeof AuthenticatedMangaRoute
   AuthenticatedMovimientosRoute: typeof AuthenticatedMovimientosRoute
@@ -372,6 +392,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnimalesRoute: AuthenticatedAnimalesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEstablecimientosRoute: AuthenticatedEstablecimientosRoute,
+  AuthenticatedForrajesRoute: AuthenticatedForrajesRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
   AuthenticatedMangaRoute: AuthenticatedMangaRoute,
   AuthenticatedMovimientosRoute: AuthenticatedMovimientosRoute,
