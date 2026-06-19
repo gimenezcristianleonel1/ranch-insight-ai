@@ -9,38 +9,245 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as ApiChatRouteImport } from './routes/api/chat'
+import { Route as AuthenticatedSanidadRouteImport } from './routes/_authenticated/sanidad'
+import { Route as AuthenticatedReproduccionRouteImport } from './routes/_authenticated/reproduccion'
+import { Route as AuthenticatedPotrerosRouteImport } from './routes/_authenticated/potreros'
+import { Route as AuthenticatedPesadasRouteImport } from './routes/_authenticated/pesadas'
+import { Route as AuthenticatedMovimientosRouteImport } from './routes/_authenticated/movimientos'
+import { Route as AuthenticatedMangaRouteImport } from './routes/_authenticated/manga'
+import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
+import { Route as AuthenticatedEstablecimientosRouteImport } from './routes/_authenticated/establecimientos'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedAnimalesRouteImport } from './routes/_authenticated/animales'
+import { Route as AuthenticatedAnimalesIdRouteImport } from './routes/_authenticated/animales.$id'
 
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiChatRoute = ApiChatRouteImport.update({
+  id: '/api/chat',
+  path: '/api/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedSanidadRoute = AuthenticatedSanidadRouteImport.update({
+  id: '/sanidad',
+  path: '/sanidad',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedReproduccionRoute =
+  AuthenticatedReproduccionRouteImport.update({
+    id: '/reproduccion',
+    path: '/reproduccion',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedPotrerosRoute = AuthenticatedPotrerosRouteImport.update({
+  id: '/potreros',
+  path: '/potreros',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPesadasRoute = AuthenticatedPesadasRouteImport.update({
+  id: '/pesadas',
+  path: '/pesadas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMovimientosRoute =
+  AuthenticatedMovimientosRouteImport.update({
+    id: '/movimientos',
+    path: '/movimientos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMangaRoute = AuthenticatedMangaRouteImport.update({
+  id: '/manga',
+  path: '/manga',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
+  id: '/ia',
+  path: '/ia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedEstablecimientosRoute =
+  AuthenticatedEstablecimientosRouteImport.update({
+    id: '/establecimientos',
+    path: '/establecimientos',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAnimalesRoute = AuthenticatedAnimalesRouteImport.update({
+  id: '/animales',
+  path: '/animales',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedAnimalesIdRoute = AuthenticatedAnimalesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AuthenticatedAnimalesRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/animales': typeof AuthenticatedAnimalesRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/ia': typeof AuthenticatedIaRoute
+  '/manga': typeof AuthenticatedMangaRoute
+  '/movimientos': typeof AuthenticatedMovimientosRoute
+  '/pesadas': typeof AuthenticatedPesadasRoute
+  '/potreros': typeof AuthenticatedPotrerosRoute
+  '/reproduccion': typeof AuthenticatedReproduccionRoute
+  '/sanidad': typeof AuthenticatedSanidadRoute
+  '/api/chat': typeof ApiChatRoute
+  '/animales/$id': typeof AuthenticatedAnimalesIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/animales': typeof AuthenticatedAnimalesRouteWithChildren
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/ia': typeof AuthenticatedIaRoute
+  '/manga': typeof AuthenticatedMangaRoute
+  '/movimientos': typeof AuthenticatedMovimientosRoute
+  '/pesadas': typeof AuthenticatedPesadasRoute
+  '/potreros': typeof AuthenticatedPotrerosRoute
+  '/reproduccion': typeof AuthenticatedReproduccionRoute
+  '/sanidad': typeof AuthenticatedSanidadRoute
+  '/api/chat': typeof ApiChatRoute
+  '/animales/$id': typeof AuthenticatedAnimalesIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
+  '/_authenticated/animales': typeof AuthenticatedAnimalesRouteWithChildren
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/_authenticated/ia': typeof AuthenticatedIaRoute
+  '/_authenticated/manga': typeof AuthenticatedMangaRoute
+  '/_authenticated/movimientos': typeof AuthenticatedMovimientosRoute
+  '/_authenticated/pesadas': typeof AuthenticatedPesadasRoute
+  '/_authenticated/potreros': typeof AuthenticatedPotrerosRoute
+  '/_authenticated/reproduccion': typeof AuthenticatedReproduccionRoute
+  '/_authenticated/sanidad': typeof AuthenticatedSanidadRoute
+  '/api/chat': typeof ApiChatRoute
+  '/_authenticated/animales/$id': typeof AuthenticatedAnimalesIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/sitemap.xml'
+    | '/animales'
+    | '/dashboard'
+    | '/establecimientos'
+    | '/ia'
+    | '/manga'
+    | '/movimientos'
+    | '/pesadas'
+    | '/potreros'
+    | '/reproduccion'
+    | '/sanidad'
+    | '/api/chat'
+    | '/animales/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/sitemap.xml'
+    | '/animales'
+    | '/dashboard'
+    | '/establecimientos'
+    | '/ia'
+    | '/manga'
+    | '/movimientos'
+    | '/pesadas'
+    | '/potreros'
+    | '/reproduccion'
+    | '/sanidad'
+    | '/api/chat'
+    | '/animales/$id'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/sitemap.xml'
+    | '/_authenticated/animales'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/establecimientos'
+    | '/_authenticated/ia'
+    | '/_authenticated/manga'
+    | '/_authenticated/movimientos'
+    | '/_authenticated/pesadas'
+    | '/_authenticated/potreros'
+    | '/_authenticated/reproduccion'
+    | '/_authenticated/sanidad'
+    | '/api/chat'
+    | '/_authenticated/animales/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRoute: typeof AuthRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
+  ApiChatRoute: typeof ApiChatRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +255,142 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/chat': {
+      id: '/api/chat'
+      path: '/api/chat'
+      fullPath: '/api/chat'
+      preLoaderRoute: typeof ApiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/sanidad': {
+      id: '/_authenticated/sanidad'
+      path: '/sanidad'
+      fullPath: '/sanidad'
+      preLoaderRoute: typeof AuthenticatedSanidadRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/reproduccion': {
+      id: '/_authenticated/reproduccion'
+      path: '/reproduccion'
+      fullPath: '/reproduccion'
+      preLoaderRoute: typeof AuthenticatedReproduccionRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/potreros': {
+      id: '/_authenticated/potreros'
+      path: '/potreros'
+      fullPath: '/potreros'
+      preLoaderRoute: typeof AuthenticatedPotrerosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pesadas': {
+      id: '/_authenticated/pesadas'
+      path: '/pesadas'
+      fullPath: '/pesadas'
+      preLoaderRoute: typeof AuthenticatedPesadasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/movimientos': {
+      id: '/_authenticated/movimientos'
+      path: '/movimientos'
+      fullPath: '/movimientos'
+      preLoaderRoute: typeof AuthenticatedMovimientosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/manga': {
+      id: '/_authenticated/manga'
+      path: '/manga'
+      fullPath: '/manga'
+      preLoaderRoute: typeof AuthenticatedMangaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/ia': {
+      id: '/_authenticated/ia'
+      path: '/ia'
+      fullPath: '/ia'
+      preLoaderRoute: typeof AuthenticatedIaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/establecimientos': {
+      id: '/_authenticated/establecimientos'
+      path: '/establecimientos'
+      fullPath: '/establecimientos'
+      preLoaderRoute: typeof AuthenticatedEstablecimientosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/animales': {
+      id: '/_authenticated/animales'
+      path: '/animales'
+      fullPath: '/animales'
+      preLoaderRoute: typeof AuthenticatedAnimalesRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/animales/$id': {
+      id: '/_authenticated/animales/$id'
+      path: '/$id'
+      fullPath: '/animales/$id'
+      preLoaderRoute: typeof AuthenticatedAnimalesIdRouteImport
+      parentRoute: typeof AuthenticatedAnimalesRoute
+    }
   }
 }
 
+interface AuthenticatedAnimalesRouteChildren {
+  AuthenticatedAnimalesIdRoute: typeof AuthenticatedAnimalesIdRoute
+}
+
+const AuthenticatedAnimalesRouteChildren: AuthenticatedAnimalesRouteChildren = {
+  AuthenticatedAnimalesIdRoute: AuthenticatedAnimalesIdRoute,
+}
+
+const AuthenticatedAnimalesRouteWithChildren =
+  AuthenticatedAnimalesRoute._addFileChildren(
+    AuthenticatedAnimalesRouteChildren,
+  )
+
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedAnimalesRoute: typeof AuthenticatedAnimalesRouteWithChildren
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedEstablecimientosRoute: typeof AuthenticatedEstablecimientosRoute
+  AuthenticatedIaRoute: typeof AuthenticatedIaRoute
+  AuthenticatedMangaRoute: typeof AuthenticatedMangaRoute
+  AuthenticatedMovimientosRoute: typeof AuthenticatedMovimientosRoute
+  AuthenticatedPesadasRoute: typeof AuthenticatedPesadasRoute
+  AuthenticatedPotrerosRoute: typeof AuthenticatedPotrerosRoute
+  AuthenticatedReproduccionRoute: typeof AuthenticatedReproduccionRoute
+  AuthenticatedSanidadRoute: typeof AuthenticatedSanidadRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedAnimalesRoute: AuthenticatedAnimalesRouteWithChildren,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedEstablecimientosRoute: AuthenticatedEstablecimientosRoute,
+  AuthenticatedIaRoute: AuthenticatedIaRoute,
+  AuthenticatedMangaRoute: AuthenticatedMangaRoute,
+  AuthenticatedMovimientosRoute: AuthenticatedMovimientosRoute,
+  AuthenticatedPesadasRoute: AuthenticatedPesadasRoute,
+  AuthenticatedPotrerosRoute: AuthenticatedPotrerosRoute,
+  AuthenticatedReproduccionRoute: AuthenticatedReproduccionRoute,
+  AuthenticatedSanidadRoute: AuthenticatedSanidadRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRoute: AuthRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
+  ApiChatRoute: ApiChatRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -1,0 +1,9 @@
+# Ganadero IA
+
+> Sistema integral de gestión ganadera profesional para establecimientos de cría bovina.
+
+Ganadero IA centraliza el rodeo, la reproducción, la sanidad, las pesadas, el manejo de potreros y el análisis económico, con un asistente de IA que responde preguntas en lenguaje natural sobre tus datos reales.
+
+## Pages
+- [Inicio](/): Página de presentación del producto.
+- [Acceso](/auth): Crear cuenta o iniciar sesión.
