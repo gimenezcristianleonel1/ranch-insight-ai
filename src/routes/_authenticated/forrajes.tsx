@@ -31,11 +31,14 @@ function ForrajesPage() {
     const [{ data: p }, { data: a }, { data: an }] = await Promise.all([
       supabase.from("potreros").select("id,nombre,hectareas").eq("establecimiento_id", activeId).order("nombre"),
       supabase.from("aforos").select("*").eq("establecimiento_id", activeId).order("fecha", { ascending: false }).limit(50),
-      supabase.from("animales").select("ev").eq("establecimiento_id", activeId).eq("estado", "activo"),
+      supabase.from("animales").select("categoria:categorias(ev)").eq("establecimiento_id", activeId).eq("estado", "activo"),
     ]);
     setPotreros((p as Potrero[]) ?? []);
     setAforos((a as Aforo[]) ?? []);
-    setEvTotal((an ?? []).reduce((s: number, r: { ev: number | null }) => s + (Number(r.ev) || 1), 0));
+    const total = ((an ?? []) as Array<{ categoria: { ev: number | null } | null }>).reduce(
+      (s, r) => s + (Number(r.categoria?.ev) || 1), 0,
+    );
+    setEvTotal(total);
   }
   useEffect(() => { load(); }, [activeId]);
 
