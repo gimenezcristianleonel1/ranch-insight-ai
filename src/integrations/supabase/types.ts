@@ -56,6 +56,167 @@ export type Database = {
           },
         ]
       }
+      aforos: {
+        Row: {
+          altura_cm: number | null
+          created_at: string
+          establecimiento_id: string
+          fecha: string
+          id: string
+          kg_ms_ha: number
+          metodo: string | null
+          observaciones: string | null
+          potrero_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          altura_cm?: number | null
+          created_at?: string
+          establecimiento_id: string
+          fecha?: string
+          id?: string
+          kg_ms_ha: number
+          metodo?: string | null
+          observaciones?: string | null
+          potrero_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          altura_cm?: number | null
+          created_at?: string
+          establecimiento_id?: string
+          fecha?: string
+          id?: string
+          kg_ms_ha?: number
+          metodo?: string | null
+          observaciones?: string | null
+          potrero_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aforos_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aforos_potrero_id_fkey"
+            columns: ["potrero_id"]
+            isOneToOne: false
+            referencedRelation: "potreros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      aguadas: {
+        Row: {
+          capacidad_litros: number | null
+          created_at: string
+          establecimiento_id: string
+          estado: string
+          id: string
+          lat: number | null
+          lng: number | null
+          nombre: string
+          observaciones: string | null
+          potrero_id: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          capacidad_litros?: number | null
+          created_at?: string
+          establecimiento_id: string
+          estado?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          nombre: string
+          observaciones?: string | null
+          potrero_id?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          capacidad_litros?: number | null
+          created_at?: string
+          establecimiento_id?: string
+          estado?: string
+          id?: string
+          lat?: number | null
+          lng?: number | null
+          nombre?: string
+          observaciones?: string | null
+          potrero_id?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "aguadas_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "aguadas_potrero_id_fkey"
+            columns: ["potrero_id"]
+            isOneToOne: false
+            referencedRelation: "potreros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      alambrados: {
+        Row: {
+          created_at: string
+          establecimiento_id: string
+          estado: string
+          hilos: number | null
+          id: string
+          km: number
+          nombre: string
+          observaciones: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          establecimiento_id: string
+          estado?: string
+          hilos?: number | null
+          id?: string
+          km?: number
+          nombre: string
+          observaciones?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          establecimiento_id?: string
+          estado?: string
+          hilos?: number | null
+          id?: string
+          km?: number
+          nombre?: string
+          observaciones?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alambrados_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       animales: {
         Row: {
           caravana: string
@@ -155,6 +316,47 @@ export type Database = {
             columns: ["raza_id"]
             isOneToOne: false
             referencedRelation: "razas"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      auditoria: {
+        Row: {
+          accion: string
+          created_at: string
+          detalle: Json | null
+          entidad: string
+          entidad_id: string | null
+          establecimiento_id: string | null
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          accion: string
+          created_at?: string
+          detalle?: Json | null
+          entidad: string
+          entidad_id?: string | null
+          establecimiento_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          accion?: string
+          created_at?: string
+          detalle?: Json | null
+          entidad?: string
+          entidad_id?: string | null
+          establecimiento_id?: string | null
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "auditoria_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
             referencedColumns: ["id"]
           },
         ]
@@ -361,6 +563,101 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      finanzas_categorias: {
+        Row: {
+          created_at: string
+          establecimiento_id: string
+          id: string
+          nombre: string
+          tipo: string
+        }
+        Insert: {
+          created_at?: string
+          establecimiento_id: string
+          id?: string
+          nombre: string
+          tipo: string
+        }
+        Update: {
+          created_at?: string
+          establecimiento_id?: string
+          id?: string
+          nombre?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finanzas_categorias_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      finanzas_movimientos: {
+        Row: {
+          cantidad: number | null
+          categoria_id: string | null
+          concepto: string
+          created_at: string
+          establecimiento_id: string
+          fecha: string
+          id: string
+          moneda: string
+          monto: number
+          observaciones: string | null
+          tipo: string
+          unidad: string | null
+          user_id: string | null
+        }
+        Insert: {
+          cantidad?: number | null
+          categoria_id?: string | null
+          concepto: string
+          created_at?: string
+          establecimiento_id: string
+          fecha?: string
+          id?: string
+          moneda?: string
+          monto: number
+          observaciones?: string | null
+          tipo: string
+          unidad?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          cantidad?: number | null
+          categoria_id?: string | null
+          concepto?: string
+          created_at?: string
+          establecimiento_id?: string
+          fecha?: string
+          id?: string
+          moneda?: string
+          monto?: number
+          observaciones?: string | null
+          tipo?: string
+          unidad?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "finanzas_movimientos_categoria_id_fkey"
+            columns: ["categoria_id"]
+            isOneToOne: false
+            referencedRelation: "finanzas_categorias"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "finanzas_movimientos_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       ia_alertas: {
         Row: {
