@@ -6,9 +6,12 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { fmtDate, fmtNum } from "@/lib/format";
 import { Scale } from "lucide-react";
+import { ExportMenu, ImportButton } from "@/components/data-io";
+import { ConfirmDelete } from "@/components/confirm";
 
 export const Route = createFileRoute("/_authenticated/pesadas")({
   head: () => ({ meta: [{ title: "Pesadas — Ganadero IA" }] }),
@@ -27,10 +30,10 @@ function PesadasPage() {
     if (!activeId) return;
     const { data } = await supabase
       .from("pesadas")
-      .select("id, peso, fecha, animales(caravana)")
+      .select("id, peso, fecha, animal_id, animales(caravana)")
       .eq("establecimiento_id", activeId)
-      .order("created_at", { ascending: false })
-      .limit(15);
+      .order("fecha", { ascending: false })
+      .limit(500);
     setRecientes(data ?? []);
   }
   useEffect(() => { load(); }, [activeId]);
@@ -52,16 +55,71 @@ function PesadasPage() {
     load();
   }
 
+  async function handleDelete(id: string) {
+    const { error } = await supabase.from("pesadas").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Pesada eliminada");
+    load();
+  }
+
+  async function handleImport(rows: Record<string, unknown>[]) {
+    if (!activeId) return;
+    const pick = (r: Record<string, unknown>, ...keys: string[]) => {
+      for (const k of keys) {
+        const f = Object.keys(r).find((x) => x.trim().toLowerCase() === k.toLowerCase());
+        if (f && r[f] !== "" && r[f] != null) return String(r[f]).trim();
+      }
+      return "";
+    };
+    const list = rows.map((r) => ({
+      caravana: pick(r, "caravana", "Caravana"),
+      peso: pick(r, "peso", "Peso", "peso (kg)", "Peso (kg)"),
+      fecha: pick(r, "fecha", "Fecha") || new Date().toISOString().slice(0, 10),
+    })).filter((x) => x.caravana && x.peso);
+    if (list.length === 0) { toast.error("Faltan columnas 'caravana' y 'peso'"); return; }
+    const caravanas = [...new Set(list.map((x) => x.caravana))];
+    const { data: animals } = await supabase.from("animales").select("id, caravana")
+      .eq("establecimiento_id", activeId).in("caravana", caravanas);
+    const m = new Map((animals ?? []).map((a) => [a.caravana, a.id]));
+    const payload = list.flatMap((x) => {
+      const id = m.get(x.caravana);
+      if (!id) return [];
+      return [{
+        establecimiento_id: activeId,
+        animal_id: id,
+        peso: Number(x.peso.replace(",", ".")),
+        fecha: /^\d{4}-\d{2}-\d{2}$/.test(x.fecha) ? x.fecha : new Date(x.fecha).toISOString().slice(0, 10),
+      }];
+    });
+    if (payload.length === 0) { toast.error("Ninguna caravana coincide con el rodeo"); return; }
+    const { error } = await supabase.from("pesadas").insert(payload);
+    if (error) { toast.error(error.message); return; }
+    toast.success(`${payload.length} pesadas importadas`);
+    load();
+  }
+
   if (!active) return <div className="p-8">Seleccioná un establecimiento.</div>;
 
+  const exportCols = [
+    { key: "caravana", header: "caravana", get: (r: any) => r.animales?.caravana ?? "" },
+    { key: "peso", header: "peso" },
+    { key: "fecha", header: "fecha" },
+  ];
+
   return (
-    <div className="p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Pesadas</h1>
-        <p className="text-muted-foreground text-sm">Carga rápida — caravana, peso, listo.</p>
+    <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-3xl font-semibold">Pesadas</h1>
+          <p className="text-muted-foreground text-sm">Carga rápida — caravana, peso, listo.</p>
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          <ImportButton onRows={handleImport} />
+          <ExportMenu items={recientes} cols={exportCols} filename={`pesadas_${active.nombre}`} />
+        </div>
       </div>
 
-      <Card className="p-6">
+      <Card className="p-6 max-w-2xl">
         <form onSubmit={handleSave} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div className="col-span-2"><Label className="text-base">Caravana</Label><Input autoFocus required value={caravana} onChange={(e) => setCaravana(e.target.value)} className="h-14 text-2xl tabular-nums" /></div>
@@ -72,17 +130,35 @@ function PesadasPage() {
         </form>
       </Card>
 
-      <Card className="p-4">
-        <h2 className="font-semibold mb-3 flex items-center gap-2"><Scale className="h-4 w-4" /> Últimas 15</h2>
-        <ul className="divide-y divide-border">
-          {recientes.map((r) => (
-            <li key={r.id} className="flex justify-between py-2 text-sm">
-              <span>{r.animales?.caravana ?? "?"} · {fmtDate(r.fecha)}</span>
-              <span className="font-medium tabular-nums">{fmtNum(r.peso)} kg</span>
-            </li>
-          ))}
-          {recientes.length === 0 && <li className="text-muted-foreground text-sm py-2">Sin pesadas aún.</li>}
-        </ul>
+      <Card className="overflow-hidden">
+        <div className="flex items-center justify-between px-4 py-3 border-b">
+          <h2 className="font-semibold flex items-center gap-2"><Scale className="h-4 w-4" /> Historial ({recientes.length})</h2>
+        </div>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Fecha</TableHead>
+              <TableHead>Caravana</TableHead>
+              <TableHead className="text-right">Peso (kg)</TableHead>
+              <TableHead className="w-16" />
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {recientes.map((r) => (
+              <TableRow key={r.id}>
+                <TableCell>{fmtDate(r.fecha)}</TableCell>
+                <TableCell className="font-medium">{r.animales?.caravana ?? "?"}</TableCell>
+                <TableCell className="text-right tabular-nums">{fmtNum(r.peso)}</TableCell>
+                <TableCell className="text-right">
+                  <ConfirmDelete onConfirm={() => handleDelete(r.id)} />
+                </TableCell>
+              </TableRow>
+            ))}
+            {recientes.length === 0 && (
+              <TableRow><TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Sin pesadas</TableCell></TableRow>
+            )}
+          </TableBody>
+        </Table>
       </Card>
     </div>
   );
