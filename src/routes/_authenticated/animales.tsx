@@ -115,7 +115,7 @@ function AnimalesPage() {
 
   async function handleDelete(id: string) {
     const { error } = await supabase.from("animales").delete().eq("id", id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Animal eliminado");
     load();
   }
@@ -153,9 +153,9 @@ function AnimalesPage() {
         };
       })
       .filter(Boolean) as any[];
-    if (payload.length === 0) return toast.error("No se encontraron filas válidas (falta columna 'caravana')");
+    if (payload.length === 0) { toast.error("No se encontraron filas válidas (falta columna 'caravana')"); return; }
     const { error, count } = await supabase.from("animales").upsert(payload, { onConflict: "establecimiento_id,caravana", count: "exact" });
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success(`${count ?? payload.length} animales importados`);
     load();
   }
