@@ -13,7 +13,6 @@ import {
   Sprout,
   AlertTriangle,
   TrendingUp,
-  TrendingDown,
   Activity,
   DollarSign,
   Wallet,
