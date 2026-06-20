@@ -79,14 +79,14 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Ganadero IA — Gestión ganadera profesional" },
+      { title: "GanaderIA — Gestión ganadera profesional" },
       { name: "description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
-      { name: "author", content: "Ganadero IA" },
-      { property: "og:title", content: "Ganadero IA" },
+      { name: "author", content: "GanaderIA" },
+      { property: "og:title", content: "GanaderIA" },
       { property: "og:description", content: "Gestión ganadera profesional con IA: rodeo, reproducción, sanidad, forraje y economía." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "Ganadero IA" },
+      { name: "twitter:title", content: "GanaderIA" },
     ],
     links: [
       {

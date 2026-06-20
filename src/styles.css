@@ -63,7 +63,7 @@
 
 :root {
   --radius: 0.625rem;
-  /* Ganadero IA — Campo moderno (verdes tierra) */
+  /* GanaderIA — Campo moderno (verdes tierra) */
   --background: oklch(0.985 0.012 95);          /* hueso cálido */
   --foreground: oklch(0.22 0.025 140);          /* verde muy oscuro */
   --card: oklch(1 0 0);
