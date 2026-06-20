@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { fmtDate } from "@/lib/format";
+import { ExportMenu } from "@/components/data-io";
+import { ConfirmDelete } from "@/components/confirm";
 
 export const Route = createFileRoute("/_authenticated/movimientos")({
   head: () => ({ meta: [{ title: "Movimientos — Ganadero IA" }] }),
@@ -28,6 +30,13 @@ function MovsPage() {
     setItems(data ?? []);
   }
   useEffect(() => { load(); }, [activeId]);
+
+  async function handleDelete(id: string) {
+    const { error } = await supabase.from("movimientos").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Movimiento eliminado");
+    load();
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -54,9 +63,20 @@ function MovsPage() {
 
   if (!active) return <div className="p-8">Seleccioná un establecimiento.</div>;
 
+  const exportCols = [
+    { key: "fecha", header: "fecha" },
+    { key: "tipo", header: "tipo" },
+    { key: "caravana", header: "caravana", get: (m: any) => m.animales?.caravana ?? "" },
+    { key: "origen", header: "origen" },
+    { key: "destino", header: "destino" },
+  ];
+
   return (
     <div className="p-6 lg:p-8 max-w-5xl mx-auto space-y-6">
-      <div><h1 className="text-3xl font-semibold">Movimientos</h1><p className="text-muted-foreground text-sm">Compras, ventas, traslados y bajas.</p></div>
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <div><h1 className="text-3xl font-semibold">Movimientos</h1><p className="text-muted-foreground text-sm">Compras, ventas, traslados y bajas.</p></div>
+        <ExportMenu items={items} cols={exportCols} filename={`movimientos_${active.nombre}`} />
+      </div>
       <Card className="p-6"><form onSubmit={submit} className="grid md:grid-cols-3 gap-3">
         <div><Label>Caravana</Label><Input value={form.caravana} onChange={(e) => setForm({ ...form, caravana: e.target.value })} placeholder="opcional para movimientos masivos" /></div>
         <div><Label>Tipo *</Label><Select value={form.tipo} onValueChange={(v) => setForm({ ...form, tipo: v })}><SelectTrigger><SelectValue /></SelectTrigger><SelectContent>
@@ -70,12 +90,18 @@ function MovsPage() {
       </form></Card>
       <Card className="overflow-hidden">
         <Table>
-          <TableHeader><TableRow><TableHead>Fecha</TableHead><TableHead>Tipo</TableHead><TableHead>Caravana</TableHead><TableHead>Origen → Destino</TableHead></TableRow></TableHeader>
+          <TableHeader><TableRow><TableHead>Fecha</TableHead><TableHead>Tipo</TableHead><TableHead>Caravana</TableHead><TableHead>Origen → Destino</TableHead><TableHead className="w-12" /></TableRow></TableHeader>
           <TableBody>
             {items.map((m) => (
-              <TableRow key={m.id}><TableCell>{fmtDate(m.fecha)}</TableCell><TableCell className="capitalize">{m.tipo.replace("_", " ")}</TableCell><TableCell>{m.animales?.caravana ?? "—"}</TableCell><TableCell className="text-muted-foreground">{m.origen ?? "—"} → {m.destino ?? "—"}</TableCell></TableRow>
+              <TableRow key={m.id}>
+                <TableCell>{fmtDate(m.fecha)}</TableCell>
+                <TableCell className="capitalize">{m.tipo.replace("_", " ")}</TableCell>
+                <TableCell>{m.animales?.caravana ?? "—"}</TableCell>
+                <TableCell className="text-muted-foreground">{m.origen ?? "—"} → {m.destino ?? "—"}</TableCell>
+                <TableCell className="text-right"><ConfirmDelete onConfirm={() => handleDelete(m.id)} /></TableCell>
+              </TableRow>
             ))}
-            {items.length === 0 && <TableRow><TableCell colSpan={4} className="text-center py-6 text-muted-foreground">Sin movimientos</TableCell></TableRow>}
+            {items.length === 0 && <TableRow><TableCell colSpan={5} className="text-center py-6 text-muted-foreground">Sin movimientos</TableCell></TableRow>}
           </TableBody>
         </Table>
       </Card>

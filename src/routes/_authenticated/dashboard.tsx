@@ -14,6 +14,8 @@ import {
   AlertTriangle,
   TrendingUp,
   Activity,
+  DollarSign,
+  Wallet,
 } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
@@ -33,17 +35,40 @@ type Stats = {
   cargaAnimal: number;
   paricionesAnio: number;
   superficie: number;
+  gdp: number | null;
+  mortalidadPct: number;
+  kgCarneHa: number;
+  ingresos: number;
+  egresos: number;
+  margenBruto: number;
 };
 
 async function loadStats(establecimientoId: string): Promise<Stats> {
-  const [{ data: animales }, { data: cats }, { data: est }, { data: servicios }, { data: diags }, { data: destetes }, { data: pariciones }] = await Promise.all([
+  const since12m = new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  const [
+    { data: animales },
+    { data: cats },
+    { data: est },
+    { data: servicios },
+    { data: diags },
+    { data: destetes },
+    { data: pariciones },
+    { data: muertes },
+    { data: ventasKg },
+    { data: pesadas },
+    { data: finanzas },
+  ] = await Promise.all([
     supabase.from("animales").select("id, sexo, categoria_id, estado, estado_reproductivo").eq("establecimiento_id", establecimientoId).eq("estado", "activo"),
     supabase.from("categorias").select("id, nombre, ev"),
     supabase.from("establecimientos").select("superficie_ganadera").eq("id", establecimientoId).single(),
-    supabase.from("servicios").select("id, vaca_id").eq("establecimiento_id", establecimientoId).gte("fecha", new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString().slice(0, 10)),
-    supabase.from("diagnosticos").select("id, vaca_id, resultado").eq("establecimiento_id", establecimientoId).gte("fecha", new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString().slice(0, 10)),
-    supabase.from("destetes").select("id").eq("establecimiento_id", establecimientoId).gte("fecha", new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString().slice(0, 10)),
-    supabase.from("pariciones").select("id, vivo").eq("establecimiento_id", establecimientoId).gte("fecha", new Date(Date.now() - 365 * 24 * 3600 * 1000).toISOString().slice(0, 10)),
+    supabase.from("servicios").select("id, vaca_id").eq("establecimiento_id", establecimientoId).gte("fecha", since12m),
+    supabase.from("diagnosticos").select("id, vaca_id, resultado").eq("establecimiento_id", establecimientoId).gte("fecha", since12m),
+    supabase.from("destetes").select("id, peso_destete").eq("establecimiento_id", establecimientoId).gte("fecha", since12m),
+    supabase.from("pariciones").select("id, vivo").eq("establecimiento_id", establecimientoId).gte("fecha", since12m),
+    supabase.from("movimientos").select("id").eq("establecimiento_id", establecimientoId).eq("tipo", "muerte").gte("fecha", since12m),
+    supabase.from("animales").select("peso_actual").eq("establecimiento_id", establecimientoId).eq("estado", "vendido").gte("updated_at", since12m),
+    supabase.from("pesadas").select("animal_id, peso, fecha").eq("establecimiento_id", establecimientoId).gte("fecha", since12m).order("fecha", { ascending: true }),
+    supabase.from("finanzas_movimientos").select("tipo, monto").eq("establecimiento_id", establecimientoId).gte("fecha", since12m),
   ]);
 
   const catMap = new Map((cats ?? []).map((c) => [c.id, c]));
@@ -66,7 +91,36 @@ async function loadStats(establecimientoId: string): Promise<Stats> {
   const destetePct = entoradas > 0 ? ((destetes?.length ?? 0) / entoradas) * 100 : 0;
   const paricionesAnio = (pariciones ?? []).filter((p) => p.vivo).length;
 
-  return { stock, vacas, toros, vaquillonas, terneros, evTotales, preniezPct, destetePct, cargaAnimal, paricionesAnio, superficie };
+  // GDP promedio: por animal, primera y última pesada del periodo
+  const porAnimal = new Map<string, { first: any; last: any }>();
+  for (const p of pesadas ?? []) {
+    const cur = porAnimal.get(p.animal_id);
+    if (!cur) porAnimal.set(p.animal_id, { first: p, last: p });
+    else cur.last = p;
+  }
+  let gdpSum = 0, gdpCount = 0;
+  for (const { first, last } of porAnimal.values()) {
+    if (first === last) continue;
+    const days = (new Date(last.fecha).getTime() - new Date(first.fecha).getTime()) / 86400000;
+    if (days < 30) continue;
+    const diff = Number(last.peso) - Number(first.peso);
+    if (diff <= 0) continue;
+    gdpSum += diff / days;
+    gdpCount++;
+  }
+  const gdp = gdpCount > 0 ? gdpSum / gdpCount : null;
+
+  const muertesCount = muertes?.length ?? 0;
+  const mortalidadPct = stock + muertesCount > 0 ? (muertesCount / (stock + muertesCount)) * 100 : 0;
+
+  const kgVendidos = (ventasKg ?? []).reduce((s, a) => s + Number(a.peso_actual ?? 0), 0);
+  const kgCarneHa = superficie > 0 ? kgVendidos / superficie : 0;
+
+  const ingresos = (finanzas ?? []).filter((f) => f.tipo === "ingreso").reduce((s, f) => s + Number(f.monto), 0);
+  const egresos = (finanzas ?? []).filter((f) => f.tipo === "egreso").reduce((s, f) => s + Number(f.monto), 0);
+  const margenBruto = ingresos - egresos;
+
+  return { stock, vacas, toros, vaquillonas, terneros, evTotales, preniezPct, destetePct, cargaAnimal, paricionesAnio, superficie, gdp, mortalidadPct, kgCarneHa, ingresos, egresos, margenBruto };
 }
 
 function KpiCard({ icon: Icon, label, value, sub, accent }: { icon: any; label: string; value: string; sub?: string; accent?: boolean }) {
@@ -153,14 +207,21 @@ function Dashboard() {
           <div className="grid md:grid-cols-3 gap-3">
             <KpiCard icon={TrendingUp} label="Pariciones (12m)" value={fmtNum(stats.paricionesAnio)} sub="terneros vivos" />
             <KpiCard icon={Scale} label="Carga animal" value={`${fmtNum(stats.cargaAnimal, 2)} EV/ha`} sub={`Sobre ${fmtNum(stats.superficie)} ha`} />
-            <KpiCard icon={AlertTriangle} label="Alertas" value="0" sub="ninguna alerta activa" />
+            <KpiCard icon={AlertTriangle} label="Mortalidad" value={fmtPct(stats.mortalidadPct)} sub="últ. 12 meses" />
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <KpiCard icon={TrendingUp} label="GDP promedio" value={stats.gdp != null ? `${fmtNum(stats.gdp * 1000, 0)} g/día` : "—"} sub="ganancia diaria de peso" />
+            <KpiCard icon={Scale} label="Kg carne / ha" value={fmtNum(stats.kgCarneHa, 1)} sub="vendidos últ. 12m" />
+            <KpiCard icon={DollarSign} label="Ingresos 12m" value={`$ ${fmtNum(stats.ingresos, 0)}`} />
+            <KpiCard icon={Wallet} label="Margen bruto" value={`$ ${fmtNum(stats.margenBruto, 0)}`} sub={`Egresos: $ ${fmtNum(stats.egresos, 0)}`} />
           </div>
 
           <Card className="p-6">
             <h2 className="font-semibold mb-3">Acciones rápidas</h2>
             <div className="grid md:grid-cols-3 lg:grid-cols-6 gap-2">
               {[
-                { to: "/animales/nuevo", label: "Alta animal" },
+                { to: "/animales", label: "Alta animal" },
                 { to: "/reproduccion", label: "Servicio" },
                 { to: "/reproduccion", label: "Tacto" },
                 { to: "/sanidad", label: "Vacuna" },
