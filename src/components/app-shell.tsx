@@ -162,7 +162,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
               <Sprout className="h-4 w-4" />
             </span>
-            <span className="font-semibold">Ganadero IA</span>
+            <span className="font-semibold">GanaderIA</span>
           </Link>
           <EstablecimientoSwitcher />
         </SidebarHeader>

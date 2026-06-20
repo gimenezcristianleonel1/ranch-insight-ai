@@ -16,7 +16,7 @@ import {
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Ganadero IA — Gestión ganadera profesional" },
+      { title: "GanaderIA — Gestión ganadera profesional" },
       {
         name: "description",
         content:
@@ -41,7 +41,7 @@ function Landing() {
             <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
               <Sprout className="h-4 w-4" />
             </span>
-            Ganadero IA
+            GanaderIA
           </div>
           <nav className="flex items-center gap-2">
             {authed ? (
@@ -108,7 +108,7 @@ function Landing() {
       </section>
 
       <footer className="border-t border-border/60 py-8 text-center text-xs text-muted-foreground">
-        Ganadero IA · Hecho para el campo argentino
+        GanaderIA · Hecho para el campo argentino
       </footer>
     </div>
   );

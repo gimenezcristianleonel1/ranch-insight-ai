@@ -12,7 +12,7 @@ import { Sprout, Loader2 } from "lucide-react";
 
 export const Route = createFileRoute("/auth")({
   ssr: false,
-  head: () => ({ meta: [{ title: "Iniciar sesión — Ganadero IA" }] }),
+  head: () => ({ meta: [{ title: "Iniciar sesión — GanaderIA" }] }),
   component: AuthPage,
 });
 
@@ -76,7 +76,7 @@ function AuthPage() {
           <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-sidebar-primary text-sidebar-primary-foreground">
             <Sprout className="h-5 w-5" />
           </span>
-          Ganadero IA
+          GanaderIA
         </Link>
         <div>
           <h2 className="text-4xl font-semibold leading-tight">
@@ -87,7 +87,7 @@ function AuthPage() {
             sin perder tiempo, y el sistema calcula los índices por vos.
           </p>
         </div>
-        <div className="text-xs text-sidebar-foreground/50">© Ganadero IA</div>
+        <div className="text-xs text-sidebar-foreground/50">© GanaderIA</div>
       </div>
 
       <div className="flex items-center justify-center p-6">
