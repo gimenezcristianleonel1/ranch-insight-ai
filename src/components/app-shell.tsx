@@ -29,9 +29,6 @@ import {
   LogOut,
   ChevronsUpDown,
   AlertTriangle,
-  Wallet,
-  Fence,
-  ScrollText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,15 +67,6 @@ const NAV_GROUPS = [
       { to: "/reproduccion", icon: HeartPulse, label: "Reproducción" },
       { to: "/sanidad", icon: Syringe, label: "Sanidad" },
       { to: "/potreros", icon: MapPinned, label: "Potreros" },
-      { to: "/forrajes", icon: Sprout, label: "Forrajes" },
-      { to: "/infraestructura", icon: Fence, label: "Infraestructura" },
-    ],
-  },
-  {
-    label: "Gestión",
-    items: [
-      { to: "/finanzas", icon: Wallet, label: "Finanzas" },
-      { to: "/auditoria", icon: ScrollText, label: "Auditoría" },
     ],
   },
   {

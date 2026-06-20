@@ -69,18 +69,8 @@ export const Route = createFileRoute("/api/chat")({
 
         const authHeader = request.headers.get("authorization");
         const token = authHeader?.replace("Bearer ", "");
-        if (!token) return new Response("Unauthorized", { status: 401 });
-
-        const authClient = createClient<Database>(
-          process.env.SUPABASE_URL!,
-          process.env.SUPABASE_PUBLISHABLE_KEY!,
-          { auth: { persistSession: false } },
-        );
-        const { data: userData, error: userErr } = await authClient.auth.getUser(token);
-        if (userErr || !userData?.user) return new Response("Unauthorized", { status: 401 });
-
         let context = "Sin datos del establecimiento — el usuario debe seleccionar uno.";
-        if (establecimientoId) {
+        if (token && establecimientoId) {
           try { context = await buildContext(establecimientoId, token); } catch (e) { console.error(e); }
         }
 
