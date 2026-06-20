@@ -44,6 +44,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
+import { GlobalSearch } from "@/components/global-search";
 
 const NAV_GROUPS = [
   {
@@ -198,7 +199,9 @@ export function AppShell({ children }: { children: ReactNode }) {
       <SidebarInset>
         <header className="flex h-14 items-center gap-2 border-b border-border px-4 sticky top-0 bg-background/95 backdrop-blur z-10">
           <SidebarTrigger />
-          <div className="flex-1" />
+          <div className="flex-1 flex justify-center md:justify-start md:pl-4">
+            <GlobalSearch />
+          </div>
         </header>
         <main className="flex-1">{children}</main>
       </SidebarInset>
