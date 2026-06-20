@@ -79,14 +79,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "GanaderIA — Gestión ganadera profesional" },
+      { title: "GanaderIA — Gestión Ganadera" },
       { name: "description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
       { name: "author", content: "GanaderIA" },
-      { property: "og:title", content: "GanaderIA" },
-      { property: "og:description", content: "Gestión ganadera profesional con IA: rodeo, reproducción, sanidad, forraje y economía." },
+      { property: "og:title", content: "GanaderIA — Gestión Ganadera" },
+      { property: "og:description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: "GanaderIA" },
+      { name: "twitter:title", content: "GanaderIA — Gestión Ganadera" },
+      { name: "twitter:description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/356ae3b8-965c-49b0-86f1-643363737304" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/356ae3b8-965c-49b0-86f1-643363737304" },
     ],
     links: [
       {
