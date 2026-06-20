@@ -88,8 +88,8 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "GanaderIA — Gestión ganadera profesional" },
       { name: "twitter:description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/9e6c35f5-78da-49b8-a2e5-352bf9499b0b" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/9e6c35f5-78da-49b8-a2e5-352bf9499b0b" },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/2dcebcb7-e74f-496c-9062-9a8186bf2aba" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/2dcebcb7-e74f-496c-9062-9a8186bf2aba" },
     ],
     links: [
       {
