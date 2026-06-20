@@ -11,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { fmtDate } from "@/lib/format";
+import { ExportMenu } from "@/components/data-io";
+import { ConfirmDelete } from "@/components/confirm";
 
 export const Route = createFileRoute("/_authenticated/sanidad")({
   head: () => ({ meta: [{ title: "Sanidad — Ganadero IA" }] }),
@@ -103,11 +105,41 @@ function Masivo({ estId }: { estId: string }) {
 
 function Recientes({ estId }: { estId: string }) {
   const [items, setItems] = useState<any[]>([]);
-  useEffect(() => {
-    supabase.from("sanidad").select("id, fecha, producto, tipo, animales(caravana)").eq("establecimiento_id", estId).order("created_at", { ascending: false }).limit(10).then(({ data }) => setItems(data ?? []));
-  }, [estId]);
-  return <Card className="p-4"><h2 className="font-semibold mb-3">Últimos 10</h2>
-    <ul className="divide-y divide-border">{items.map((s) => <li key={s.id} className="flex justify-between py-2 text-sm"><span>{s.animales?.caravana} · {s.tipo}</span><span className="text-muted-foreground">{fmtDate(s.fecha)} · {s.producto}</span></li>)}
-    {items.length === 0 && <li className="text-muted-foreground text-sm py-2">Sin registros.</li>}</ul>
-  </Card>;
+  async function load() {
+    const { data } = await supabase.from("sanidad").select("id, fecha, producto, tipo, dosis, costo, animales(caravana)").eq("establecimiento_id", estId).order("fecha", { ascending: false }).limit(300);
+    setItems(data ?? []);
+  }
+  useEffect(() => { load(); }, [estId]);
+  async function handleDelete(id: string) {
+    const { error } = await supabase.from("sanidad").delete().eq("id", id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Tratamiento eliminado");
+    load();
+  }
+  const cols = [
+    { key: "fecha", header: "fecha" },
+    { key: "caravana", header: "caravana", get: (s: any) => s.animales?.caravana ?? "" },
+    { key: "tipo", header: "tipo" },
+    { key: "producto", header: "producto" },
+    { key: "dosis", header: "dosis" },
+    { key: "costo", header: "costo" },
+  ];
+  return (
+    <Card className="p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold">Historial ({items.length})</h2>
+        <ExportMenu size="sm" items={items} cols={cols} filename="sanidad" />
+      </div>
+      <ul className="divide-y divide-border">
+        {items.map((s) => (
+          <li key={s.id} className="flex items-center justify-between gap-2 py-2 text-sm">
+            <span className="font-medium">{s.animales?.caravana} · <span className="font-normal capitalize">{s.tipo}</span></span>
+            <span className="text-muted-foreground flex-1 text-right">{fmtDate(s.fecha)} · {s.producto}</span>
+            <ConfirmDelete onConfirm={() => handleDelete(s.id)} />
+          </li>
+        ))}
+        {items.length === 0 && <li className="text-muted-foreground text-sm py-2">Sin registros.</li>}
+      </ul>
+    </Card>
+  );
 }
