@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { Download, Trash2, Upload, FileText, Image as ImageIcon } from "lucide-react";
 import { uploadFile, listFiles, getSignedUrl, deleteFile, type EntityType } from "@/lib/storage";
-import { useEstablecimiento } from "@/hooks/use-establecimiento";
+import { useActiveEstablecimiento } from "@/hooks/use-establecimiento";
 import { fmtDate } from "@/lib/format";
 
 export function Attachments({
@@ -15,7 +15,7 @@ export function Attachments({
   entityId: string;
   categoria?: string;
 }) {
-  const { establecimientoId } = useEstablecimiento();
+  const { activeId: establecimientoId } = useActiveEstablecimiento();
   const [items, setItems] = useState<any[]>([]);
   const [busy, setBusy] = useState(false);
 
