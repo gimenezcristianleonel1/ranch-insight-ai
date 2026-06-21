@@ -183,7 +183,7 @@ function TareaItem({ t, onSaved, estId, refs }: { t: Tarea; onSaved: () => void;
   }
   async function del() {
     const { error } = await supabase.from("tareas").delete().eq("id", t.id);
-    if (error) return toast.error(error.message);
+    if (error) { toast.error(error.message); return; }
     toast.success("Eliminada"); onSaved();
   }
   const hoy = todayISO();
