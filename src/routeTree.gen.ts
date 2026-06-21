@@ -17,6 +17,7 @@ import { Route as ApiChatRouteImport } from './routes/api/chat'
 import { Route as AuthenticatedSanidadRouteImport } from './routes/_authenticated/sanidad'
 import { Route as AuthenticatedReproduccionRouteImport } from './routes/_authenticated/reproduccion'
 import { Route as AuthenticatedPotrerosRouteImport } from './routes/_authenticated/potreros'
+import { Route as AuthenticatedPlanificacionRouteImport } from './routes/_authenticated/planificacion'
 import { Route as AuthenticatedPesadasRouteImport } from './routes/_authenticated/pesadas'
 import { Route as AuthenticatedMovimientosRouteImport } from './routes/_authenticated/movimientos'
 import { Route as AuthenticatedMangaRouteImport } from './routes/_authenticated/manga'
@@ -66,6 +67,12 @@ const AuthenticatedPotrerosRoute = AuthenticatedPotrerosRouteImport.update({
   path: '/potreros',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPlanificacionRoute =
+  AuthenticatedPlanificacionRouteImport.update({
+    id: '/planificacion',
+    path: '/planificacion',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPesadasRoute = AuthenticatedPesadasRouteImport.update({
   id: '/pesadas',
   path: '/pesadas',
@@ -120,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/manga': typeof AuthenticatedMangaRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
   '/pesadas': typeof AuthenticatedPesadasRoute
+  '/planificacion': typeof AuthenticatedPlanificacionRoute
   '/potreros': typeof AuthenticatedPotrerosRoute
   '/reproduccion': typeof AuthenticatedReproduccionRoute
   '/sanidad': typeof AuthenticatedSanidadRoute
@@ -137,6 +145,7 @@ export interface FileRoutesByTo {
   '/manga': typeof AuthenticatedMangaRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
   '/pesadas': typeof AuthenticatedPesadasRoute
+  '/planificacion': typeof AuthenticatedPlanificacionRoute
   '/potreros': typeof AuthenticatedPotrerosRoute
   '/reproduccion': typeof AuthenticatedReproduccionRoute
   '/sanidad': typeof AuthenticatedSanidadRoute
@@ -156,6 +165,7 @@ export interface FileRoutesById {
   '/_authenticated/manga': typeof AuthenticatedMangaRoute
   '/_authenticated/movimientos': typeof AuthenticatedMovimientosRoute
   '/_authenticated/pesadas': typeof AuthenticatedPesadasRoute
+  '/_authenticated/planificacion': typeof AuthenticatedPlanificacionRoute
   '/_authenticated/potreros': typeof AuthenticatedPotrerosRoute
   '/_authenticated/reproduccion': typeof AuthenticatedReproduccionRoute
   '/_authenticated/sanidad': typeof AuthenticatedSanidadRoute
@@ -175,6 +185,7 @@ export interface FileRouteTypes {
     | '/manga'
     | '/movimientos'
     | '/pesadas'
+    | '/planificacion'
     | '/potreros'
     | '/reproduccion'
     | '/sanidad'
@@ -192,6 +203,7 @@ export interface FileRouteTypes {
     | '/manga'
     | '/movimientos'
     | '/pesadas'
+    | '/planificacion'
     | '/potreros'
     | '/reproduccion'
     | '/sanidad'
@@ -210,6 +222,7 @@ export interface FileRouteTypes {
     | '/_authenticated/manga'
     | '/_authenticated/movimientos'
     | '/_authenticated/pesadas'
+    | '/_authenticated/planificacion'
     | '/_authenticated/potreros'
     | '/_authenticated/reproduccion'
     | '/_authenticated/sanidad'
@@ -281,6 +294,13 @@ declare module '@tanstack/react-router' {
       path: '/potreros'
       fullPath: '/potreros'
       preLoaderRoute: typeof AuthenticatedPotrerosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/planificacion': {
+      id: '/_authenticated/planificacion'
+      path: '/planificacion'
+      fullPath: '/planificacion'
+      preLoaderRoute: typeof AuthenticatedPlanificacionRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/pesadas': {
@@ -363,6 +383,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMangaRoute: typeof AuthenticatedMangaRoute
   AuthenticatedMovimientosRoute: typeof AuthenticatedMovimientosRoute
   AuthenticatedPesadasRoute: typeof AuthenticatedPesadasRoute
+  AuthenticatedPlanificacionRoute: typeof AuthenticatedPlanificacionRoute
   AuthenticatedPotrerosRoute: typeof AuthenticatedPotrerosRoute
   AuthenticatedReproduccionRoute: typeof AuthenticatedReproduccionRoute
   AuthenticatedSanidadRoute: typeof AuthenticatedSanidadRoute
@@ -376,6 +397,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMangaRoute: AuthenticatedMangaRoute,
   AuthenticatedMovimientosRoute: AuthenticatedMovimientosRoute,
   AuthenticatedPesadasRoute: AuthenticatedPesadasRoute,
+  AuthenticatedPlanificacionRoute: AuthenticatedPlanificacionRoute,
   AuthenticatedPotrerosRoute: AuthenticatedPotrerosRoute,
   AuthenticatedReproduccionRoute: AuthenticatedReproduccionRoute,
   AuthenticatedSanidadRoute: AuthenticatedSanidadRoute,

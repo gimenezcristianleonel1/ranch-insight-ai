@@ -29,6 +29,7 @@ import {
   LogOut,
   ChevronsUpDown,
   AlertTriangle,
+  CalendarDays,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +53,7 @@ const NAV_GROUPS = [
     items: [
       { to: "/dashboard", icon: LayoutDashboard, label: "Dashboard" },
       { to: "/manga", icon: Zap, label: "Modo manga" },
+      { to: "/planificacion", icon: CalendarDays, label: "Planificación" },
     ],
   },
   {
