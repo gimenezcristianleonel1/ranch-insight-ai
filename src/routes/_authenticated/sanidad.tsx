@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { fmtDate } from "@/lib/format";
 import { ExportMenu } from "@/components/data-io";
 import { ConfirmDelete } from "@/components/confirm";
+import { AttachmentsButton } from "@/components/attachments-dialog";
 
 export const Route = createFileRoute("/_authenticated/sanidad")({
   head: () => ({ meta: [{ title: "Sanidad — Ganadero IA" }] }),
@@ -135,6 +136,7 @@ function Recientes({ estId }: { estId: string }) {
           <li key={s.id} className="flex items-center justify-between gap-2 py-2 text-sm">
             <span className="font-medium">{s.animales?.caravana} · <span className="font-normal capitalize">{s.tipo}</span></span>
             <span className="text-muted-foreground flex-1 text-right">{fmtDate(s.fecha)} · {s.producto}</span>
+            <AttachmentsButton entityType="sanidad" entityId={s.id} title="Comprobantes y archivos" categoria="comprobante" />
             <ConfirmDelete onConfirm={() => handleDelete(s.id)} />
           </li>
         ))}
