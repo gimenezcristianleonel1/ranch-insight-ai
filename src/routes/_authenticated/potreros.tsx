@@ -12,6 +12,7 @@ import { Plus, MapPinned, Droplets, Pencil } from "lucide-react";
 import { fmtNum } from "@/lib/format";
 import { ExportMenu } from "@/components/data-io";
 import { ConfirmDelete } from "@/components/confirm";
+import { AttachmentsButton } from "@/components/attachments-dialog";
 
 export const Route = createFileRoute("/_authenticated/potreros")({
   head: () => ({ meta: [{ title: "Potreros — Ganadero IA" }] }),
@@ -150,6 +151,7 @@ function PotrerosPage() {
                 </div>
               </div>
               <div className="flex justify-end gap-1 mt-3 pt-3 border-t">
+                <AttachmentsButton entityType="potrero" entityId={p.id} title={`Archivos · ${p.nombre}`} categoria="foto_potrero" />
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}>
                   <Pencil className="h-4 w-4" />
                 </Button>

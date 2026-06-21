@@ -320,6 +320,65 @@ export type Database = {
           },
         ]
       }
+      archivos: {
+        Row: {
+          bucket: string
+          categoria: string | null
+          created_at: string
+          descripcion: string | null
+          entity_id: string | null
+          entity_type: string
+          establecimiento_id: string
+          id: string
+          nombre: string
+          path: string
+          subido_por: string | null
+          tamano_bytes: number | null
+          tipo_mime: string | null
+          updated_at: string
+        }
+        Insert: {
+          bucket?: string
+          categoria?: string | null
+          created_at?: string
+          descripcion?: string | null
+          entity_id?: string | null
+          entity_type: string
+          establecimiento_id: string
+          id?: string
+          nombre: string
+          path: string
+          subido_por?: string | null
+          tamano_bytes?: number | null
+          tipo_mime?: string | null
+          updated_at?: string
+        }
+        Update: {
+          bucket?: string
+          categoria?: string | null
+          created_at?: string
+          descripcion?: string | null
+          entity_id?: string | null
+          entity_type?: string
+          establecimiento_id?: string
+          id?: string
+          nombre?: string
+          path?: string
+          subido_por?: string | null
+          tamano_bytes?: number | null
+          tipo_mime?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "archivos_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       auditoria: {
         Row: {
           accion: string
