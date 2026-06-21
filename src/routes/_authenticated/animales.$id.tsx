@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { fmtDate, fmtNum } from "@/lib/format";
 import { ArrowLeft, Beef } from "lucide-react";
+import { Attachments } from "@/components/attachments";
 
 export const Route = createFileRoute("/_authenticated/animales/$id")({
   head: () => ({ meta: [{ title: "Animal — Ganadero IA" }] }),
@@ -61,6 +62,7 @@ function AnimalDetail() {
           <TabsTrigger value="pesadas">Pesadas ({pesadas.length})</TabsTrigger>
           <TabsTrigger value="sanidad">Sanidad ({sanidad.length})</TabsTrigger>
           <TabsTrigger value="repro">Reproducción ({servicios.length + diags.length})</TabsTrigger>
+          <TabsTrigger value="archivos">Archivos</TabsTrigger>
         </TabsList>
         <TabsContent value="pesadas"><Card className="p-4">
           {pesadas.length === 0 ? <p className="text-muted-foreground text-sm">Sin pesadas registradas.</p> : (
@@ -83,6 +85,9 @@ function AnimalDetail() {
               <ul className="space-y-1 text-sm">{diags.map((d) => <li key={d.id}>{fmtDate(d.fecha)} · {d.resultado ? "Preñada" : "Vacía"} {d.edad_fetal_dias ? `(${d.edad_fetal_dias}d)` : ""}</li>)}</ul>
             )}
           </div>
+        </Card></TabsContent>
+        <TabsContent value="archivos"><Card className="p-4">
+          <Attachments entityType="animal" entityId={id} categoria="foto_animal" />
         </Card></TabsContent>
       </Tabs>
     </div>
