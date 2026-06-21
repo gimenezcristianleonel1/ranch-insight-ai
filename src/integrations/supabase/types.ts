@@ -1140,6 +1140,108 @@ export type Database = {
           },
         ]
       }
+      tareas: {
+        Row: {
+          animal_id: string | null
+          categoria: string | null
+          completada_at: string | null
+          created_by: string | null
+          descripcion: string | null
+          establecimiento_id: string
+          estado: string
+          fecha: string
+          fecha_creacion: string
+          hora: string | null
+          id: string
+          observaciones: string | null
+          potrero_id: string | null
+          prioridad: string
+          responsable: string | null
+          sanidad_id: string | null
+          servicio_id: string | null
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          animal_id?: string | null
+          categoria?: string | null
+          completada_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          establecimiento_id: string
+          estado?: string
+          fecha: string
+          fecha_creacion?: string
+          hora?: string | null
+          id?: string
+          observaciones?: string | null
+          potrero_id?: string | null
+          prioridad?: string
+          responsable?: string | null
+          sanidad_id?: string | null
+          servicio_id?: string | null
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          animal_id?: string | null
+          categoria?: string | null
+          completada_at?: string | null
+          created_by?: string | null
+          descripcion?: string | null
+          establecimiento_id?: string
+          estado?: string
+          fecha?: string
+          fecha_creacion?: string
+          hora?: string | null
+          id?: string
+          observaciones?: string | null
+          potrero_id?: string | null
+          prioridad?: string
+          responsable?: string | null
+          sanidad_id?: string | null
+          servicio_id?: string | null
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tareas_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animales"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_potrero_id_fkey"
+            columns: ["potrero_id"]
+            isOneToOne: false
+            referencedRelation: "potreros"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_sanidad_id_fkey"
+            columns: ["sanidad_id"]
+            isOneToOne: false
+            referencedRelation: "sanidad"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tareas_servicio_id_fkey"
+            columns: ["servicio_id"]
+            isOneToOne: false
+            referencedRelation: "servicios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
