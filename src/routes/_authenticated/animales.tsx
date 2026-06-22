@@ -131,8 +131,8 @@ function AnimalesPage() {
       }
       return "";
     };
-    const payload = rows
-      .map((r) => {
+    const mapped = rows
+      .map((r, idx) => {
         const caravana = pick(r, "caravana", "Caravana");
         if (!caravana) return null;
         const sexoRaw = pick(r, "sexo", "Sexo").toLowerCase();
@@ -142,6 +142,7 @@ function AnimalesPage() {
         const peso = pick(r, "peso", "peso_actual", "Peso (kg)", "Peso");
         const fnac = pick(r, "fecha_nacimiento", "Nacimiento", "Fecha nacimiento");
         return {
+          _rowIndex: idx + 2, // +1 for 1-indexed, +1 for header row
           establecimiento_id: activeId,
           caravana,
           rfid: pick(r, "rfid", "RFID") || null,
@@ -153,10 +154,72 @@ function AnimalesPage() {
         };
       })
       .filter(Boolean) as any[];
-    if (payload.length === 0) { toast.error("No se encontraron filas válidas (falta columna 'caravana')"); return; }
-    const { error, count } = await supabase.from("animales").upsert(payload, { onConflict: "establecimiento_id,caravana", count: "exact" });
-    if (error) { toast.error(error.message); return; }
-    toast.success(`${count ?? payload.length} animales importados`);
+    if (mapped.length === 0) { toast.error("No se encontraron filas válidas (falta columna 'caravana')"); return; }
+
+    // Detect duplicates within the file by caravana (conflict key: establecimiento_id,caravana)
+    const seen = new Map<string, number[]>();
+    for (const row of mapped) {
+      const key = String(row.caravana).toLowerCase();
+      const list = seen.get(key) ?? [];
+      list.push(row._rowIndex);
+      seen.set(key, list);
+    }
+    const duplicateGroups = Array.from(seen.entries()).filter(([, rows]) => rows.length > 1);
+
+    let strategy: "merge" | "ignore" = "merge";
+    if (duplicateGroups.length > 0) {
+      const preview = duplicateGroups
+        .slice(0, 10)
+        .map(([car, rows]) => `  • Caravana "${car}" — filas ${rows.join(", ")}`)
+        .join("\n");
+      const more = duplicateGroups.length > 10 ? `\n  …y ${duplicateGroups.length - 10} más` : "";
+      console.table(
+        duplicateGroups.map(([car, rows]) => ({ caravana: car, filas: rows.join(", "), ocurrencias: rows.length })),
+      );
+      const msg =
+        `Se detectaron ${duplicateGroups.length} caravana(s) duplicada(s) en el archivo:\n\n${preview}${more}\n\n` +
+        `Aceptar = FUSIONAR (conservar la última fila de cada caravana).\n` +
+        `Cancelar = IGNORAR duplicados (conservar la primera fila).`;
+      strategy = window.confirm(msg) ? "merge" : "ignore";
+    }
+
+    // Deduplicate according to strategy
+    const dedup = new Map<string, any>();
+    for (const row of mapped) {
+      const key = String(row.caravana).toLowerCase();
+      if (strategy === "merge" || !dedup.has(key)) dedup.set(key, row);
+    }
+    const payload = Array.from(dedup.values()).map(({ _rowIndex, ...r }) => r);
+
+    // Batch insert with per-batch error reporting
+    const BATCH = 500;
+    let inserted = 0;
+    const errors: string[] = [];
+    for (let i = 0; i < payload.length; i += BATCH) {
+      const batch = payload.slice(i, i + BATCH);
+      const { error, count } = await supabase
+        .from("animales")
+        .upsert(batch, { onConflict: "establecimiento_id,caravana", count: "exact" });
+      if (error) {
+        errors.push(`Lote ${Math.floor(i / BATCH) + 1} (filas ${i + 1}-${i + batch.length}): ${error.message}`);
+        console.error("[import animales] batch error:", error, batch);
+      } else {
+        inserted += count ?? batch.length;
+      }
+    }
+
+    const skipped = mapped.length - payload.length;
+    const summary = [
+      `${inserted} animales ${strategy === "merge" ? "importados/actualizados" : "importados"}`,
+      skipped > 0 ? `${skipped} duplicado(s) ${strategy === "merge" ? "fusionado(s)" : "ignorado(s)"}` : null,
+      errors.length > 0 ? `${errors.length} lote(s) con error` : null,
+    ].filter(Boolean).join(" · ");
+
+    if (errors.length > 0) {
+      toast.error(summary, { description: errors.slice(0, 3).join("\n"), duration: 10000 });
+    } else {
+      toast.success(summary);
+    }
     load();
   }
 
