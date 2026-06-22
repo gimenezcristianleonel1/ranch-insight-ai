@@ -3,8 +3,23 @@ import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { createLovableAiGatewayProvider } from "@/lib/ai-gateway.server";
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
+import { z } from "zod";
 
 type Body = { messages?: unknown; establecimientoId?: string };
+
+const MessagePartSchema = z.object({
+  type: z.string().max(64),
+  text: z.string().max(8000).optional(),
+}).passthrough();
+
+const MessageSchema = z.object({
+  id: z.string().max(128).optional(),
+  role: z.enum(["user", "assistant", "system"]),
+  parts: z.array(MessagePartSchema).max(64).optional(),
+  content: z.string().max(8000).optional(),
+}).passthrough();
+
+const MessagesSchema = z.array(MessageSchema).min(1).max(50);
 
 async function buildContext(establecimientoId: string, token: string): Promise<string> {
   const supabase = createClient<Database>(
@@ -61,16 +76,40 @@ export const Route = createFileRoute("/api/chat")({
   server: {
     handlers: {
       POST: async ({ request }) => {
-        const { messages, establecimientoId } = (await request.json()) as Body;
-        if (!Array.isArray(messages)) return new Response("messages required", { status: 400 });
+        // 1. Require authentication
+        const authHeader = request.headers.get("authorization");
+        if (!authHeader?.startsWith("Bearer ")) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+        const token = authHeader.slice("Bearer ".length).trim();
+        if (!token) return new Response("Unauthorized", { status: 401 });
+
+        const SUPABASE_URL = process.env.SUPABASE_URL;
+        const SUPABASE_PUBLISHABLE_KEY = process.env.SUPABASE_PUBLISHABLE_KEY;
+        if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
+          return new Response("Server misconfigured", { status: 500 });
+        }
+        const authClient = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+          auth: { persistSession: false, autoRefreshToken: false },
+        });
+        const { data: claimsData, error: claimsErr } = await authClient.auth.getClaims(token);
+        if (claimsErr || !claimsData?.claims?.sub) {
+          return new Response("Unauthorized", { status: 401 });
+        }
+
+        // 2. Parse + validate body
+        const { messages: rawMessages, establecimientoId } = (await request.json()) as Body;
+        const parsed = MessagesSchema.safeParse(rawMessages);
+        if (!parsed.success) {
+          return new Response("Invalid messages payload", { status: 400 });
+        }
+        const messages = parsed.data as unknown as UIMessage[];
 
         const key = process.env.LOVABLE_API_KEY;
         if (!key) return new Response("Missing LOVABLE_API_KEY", { status: 500 });
 
-        const authHeader = request.headers.get("authorization");
-        const token = authHeader?.replace("Bearer ", "");
         let context = "Sin datos del establecimiento — el usuario debe seleccionar uno.";
-        if (token && establecimientoId) {
+        if (establecimientoId && typeof establecimientoId === "string") {
           try { context = await buildContext(establecimientoId, token); } catch (e) { console.error(e); }
         }
 
@@ -88,7 +127,7 @@ Reglas:
 - Usá unidades argentinas: ha, kg, EV/ha, %.
 
 ${context}`,
-          messages: await convertToModelMessages(messages as UIMessage[]),
+          messages: await convertToModelMessages(messages),
         });
 
         return result.toUIMessageStreamResponse();
