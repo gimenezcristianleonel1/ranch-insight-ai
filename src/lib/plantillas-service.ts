@@ -94,7 +94,7 @@ export async function listarPlantillas(tipo?: TipoPlantilla): Promise<Plantilla[
   if (tipo) q = (q as any).eq("tipo", tipo);
 
   const { data } = await q;
-  return (data as Plantilla[]) ?? [];
+  return ((data as unknown) as Plantilla[]) ?? [];
 }
 
 export async function guardarPlantilla(
@@ -124,7 +124,7 @@ export async function guardarPlantilla(
       .eq("id", idExistente)
       .select()
       .single();
-    return data as Plantilla;
+    return (data as unknown) as Plantilla;
   }
 
   const { data } = await supabase
@@ -132,7 +132,7 @@ export async function guardarPlantilla(
     .insert(payload)
     .select()
     .single();
-  return data as Plantilla;
+  return (data as unknown) as Plantilla;
 }
 
 export async function incrementarUsos(id: string): Promise<void> {
