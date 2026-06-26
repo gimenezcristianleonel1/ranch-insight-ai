@@ -30,6 +30,10 @@ import {
   ChevronsUpDown,
   AlertTriangle,
   CalendarDays,
+  Wallet,
+  Droplets,
+  Users,
+  Fence,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -70,6 +74,15 @@ const NAV_GROUPS = [
       { to: "/reproduccion", icon: HeartPulse, label: "Reproducción" },
       { to: "/sanidad", icon: Syringe, label: "Sanidad" },
       { to: "/potreros", icon: MapPinned, label: "Potreros" },
+      { to: "/pasturas", icon: Sprout, label: "Pasturas" },
+      { to: "/finanzas", icon: Wallet, label: "Finanzas" },
+    ],
+  },
+  {
+    label: "Campo",
+    items: [
+      { to: "/infraestructura", icon: Fence, label: "Infraestructura" },
+      { to: "/miembros", icon: Users, label: "Miembros" },
     ],
   },
   {

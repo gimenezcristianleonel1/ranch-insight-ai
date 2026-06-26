@@ -36,7 +36,7 @@ async function buildContext(establecimientoId: string, token: string): Promise<s
     supabase.from("diagnosticos").select("vaca_id, resultado, fecha").eq("establecimiento_id", establecimientoId),
     supabase.from("pariciones").select("fecha, vivo").eq("establecimiento_id", establecimientoId),
     supabase.from("destetes").select("fecha, peso_destete").eq("establecimiento_id", establecimientoId),
-    supabase.from("potreros").select("nombre, hectareas, tipo_pastura").eq("establecimiento_id", establecimientoId),
+    supabase.from("potreros").select("nombre, hectareas, tipo_pastura, estado").eq("establecimiento_id", establecimientoId),
     supabase.from("sanidad").select("tipo, producto, fecha").eq("establecimiento_id", establecimientoId).order("fecha", { ascending: false }).limit(20),
   ]);
 
@@ -59,7 +59,8 @@ DATOS DEL ESTABLECIMIENTO "${est.data?.nombre ?? "—"}" (${est.data?.provincia 
 - Stock activo: ${a.length} animales
 - Composición: Vacas ${byCat("Vaca")}, Vaquillonas ${byCat("Vaquillona")}, Terneros ${byCat("Ternero") + byCat("Ternera")}, Toros ${byCat("Toro")}, Novillos ${byCat("Novillo")}
 - EV totales: ${ev.toFixed(1)}  |  Carga animal: ${(sup > 0 ? ev / sup : 0).toFixed(2)} EV/ha
-- Potreros: ${(potreros.data ?? []).length} (${(potreros.data ?? []).reduce((s, p) => s + Number(p.hectareas), 0)} ha)
+- Potreros: ${(potreros.data ?? []).length} (${(potreros.data ?? []).reduce((s, p) => s + Number(p.hectareas), 0)} ha totales)
+${(potreros.data ?? []).map(p => `  · ${p.nombre}: ${p.hectareas} ha${p.tipo_pastura ? `, ${p.tipo_pastura}` : ""}${p.estado && p.estado !== "disponible" ? ` [${p.estado}]` : ""}`).join("\n")}
 
 REPRODUCCIÓN (últimos 12 meses):
 - Vacas entoradas: ${entoradas}
