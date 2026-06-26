@@ -118,7 +118,7 @@ export async function generarInformeRodeo(estId: string, estNombre: string) {
     </table>
     <h2>Listado completo (${animalesData.length} animales)</h2>
     <table>
-      <thead><tr><th>Caravana</th><th>Categoría</th><th>Sexo</th><th>Raza</th><th>Potrero</th><th>Estado reprod.</th><th style="text-align:right">Peso (kg)</th></tr></thead>
+      <thead><tr><th>Fecha</th><th>Categoría</th><th>Sexo</th><th>Raza</th><th>Potrero</th><th>Estado reprod.</th><th style="text-align:right">Peso (kg)</th></tr></thead>
       <tbody>
         ${animalesData.map(a => `
           <tr>
