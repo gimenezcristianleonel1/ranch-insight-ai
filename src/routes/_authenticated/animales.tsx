@@ -7,14 +7,18 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { Plus, Search, Pencil } from "lucide-react";
 import { fmtNum, fmtDate } from "@/lib/format";
-import { ExportMenu, ImportButton } from "@/components/data-io";
+import { ExportMenu } from "@/components/data-io";
 import { ConfirmDelete } from "@/components/confirm";
+import { ImportPreview, type FieldDef, type ColumnMapping, type ImportResult } from "@/components/import-preview";
+import { pickFile, parseFile, parsearFechaGanadera } from "@/lib/io";
+import { generarInformeRodeo } from "@/lib/pdf-reports";
+import { FileDown } from "lucide-react";
 
 export const Route = createFileRoute("/_authenticated/animales")({
   head: () => ({ meta: [{ title: "Animales — Ganadero IA" }] }),
@@ -49,6 +53,36 @@ function AnimalesPage() {
   const [saving, setSaving] = useState(false);
   const [editing, setEditing] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewRows, setPreviewRows] = useState<Record<string, string>[]>([]);
+
+  // Definición de campos para el ImportPreview
+  const ANIMAL_FIELDS: FieldDef[] = [
+    {
+      key: "caravana", label: "Caravana", required: true, esCaravana: true,
+      aliases: ["caravana", "nro", "numero", "id animal", "tag", "nro animal", "identificacion", "id"],
+      validate: (v) => !v.trim() ? "Caravana vacía" : null,
+    },
+    { key: "rfid", label: "RFID", aliases: ["rfid", "chip", "electronico", "caravana electronica"] },
+    {
+      key: "sexo", label: "Sexo", aliases: ["sexo", "sex", "genero", "género"], hint: "macho / hembra",
+      validate: (v) => v && !["macho","hembra","m","h","♂","♀","macho","hembra"].includes(v.trim().toLowerCase())
+        ? `Sexo inválido: "${v}" (esperado: macho/hembra/m/h)` : null,
+    },
+    {
+      key: "fecha_nacimiento", label: "Fecha nacimiento", esFecha: true,
+      aliases: ["fecha nacimiento", "nacimiento", "fnac", "fecha nac", "fecha de nacimiento", "fn", "f nac", "fechanac"],
+    },
+    {
+      key: "peso", label: "Peso (kg)", aliases: ["peso", "peso actual", "peso kg", "kg", "peso vivo"],
+      validate: (v) => v && isNaN(Number(String(v).replace(",","."))) ? `Peso inválido: "${v}"` : null,
+    },
+    { key: "raza", label: "Raza", aliases: ["raza", "breed", "raza bovina", "raza animal"] },
+    { key: "categoria", label: "Categoría", aliases: ["categoria", "cat", "tipo", "categoria animal", "cat animal"] },
+    { key: "potrero", label: "Potrero", aliases: ["potrero", "campo", "lote", "paddock", "lote potrero"] },
+    { key: "estado", label: "Estado", aliases: ["estado", "status", "estado animal"], hint: "activo / vendido / muerto" },
+    { key: "observaciones", label: "Observaciones", aliases: ["observaciones", "obs", "notas", "nota", "comentarios"] },
+  ];
 
   async function load() {
     if (!activeId) return;
@@ -120,43 +154,95 @@ function AnimalesPage() {
     load();
   }
 
-  async function handleImport(rows: Record<string, unknown>[]) {
+  async function handleImportFile() {
+    const file = await pickFile();
+    if (!file) return;
+    const rows = await parseFile(file);
+    if (!rows.length) { toast.error("El archivo está vacío o no tiene filas válidas"); return; }
+    setPreviewRows(rows);
+    setPreviewOpen(true);
+  }
+
+  async function handleImport(mapping: ColumnMapping, rows: Record<string, string>[]): Promise<ImportResult> {
+    setPreviewOpen(false);
     if (!activeId) return;
     const razaMapName = new Map(razas.map((r) => [r.nombre.toLowerCase(), r.id]));
     const catMapName = new Map(cats.map((c) => [c.nombre.toLowerCase(), c.id]));
-    const pick = (r: Record<string, unknown>, ...keys: string[]) => {
-      for (const k of keys) {
-        const found = Object.keys(r).find((x) => x.trim().toLowerCase() === k.toLowerCase());
-        if (found && r[found] !== "" && r[found] != null) return String(r[found]).trim();
+    // Cargar potreros para mapeo por nombre
+    const { data: potData } = await supabase.from("potreros").select("id, nombre").eq("establecimiento_id", activeId!);
+    const potreroMapName = new Map((potData ?? []).map((p: any) => [p.nombre.toLowerCase(), p.id]));
+
+    // Detectar potreros del archivo que no existen en la BD
+    const potreroCol = Object.entries(mapping).find(([, v]) => v === "potrero")?.[0];
+    if (potreroCol) {
+      const nombresEnArchivo = [...new Set(
+        rows.map(r => (r[potreroCol] ?? "").trim()).filter(Boolean)
+      )];
+      const faltantes = nombresEnArchivo.filter(n => !potreroMapName.has(n.toLowerCase()));
+      if (faltantes.length > 0) {
+        const crear = window.confirm(
+          `Los siguientes potreros del archivo no existen en el sistema:\n\n` +
+          faltantes.map(n => `  • ${n}`).join("\n") +
+          `\n\nAceptar = CREAR automáticamente estos potreros.\nCancelar = Ignorar animales con esos potreros.`
+        );
+        if (crear) {
+          for (const nombre of faltantes) {
+            const { data: nuevo } = await supabase.from("potreros")
+              .insert({ establecimiento_id: activeId!, nombre, hectareas: 0, estado: "disponible" })
+              .select("id, nombre").single();
+            if (nuevo) potreroMapName.set(nuevo.nombre.toLowerCase(), nuevo.id);
+          }
+          toast.success(`${faltantes.length} potrero(s) creado(s) automáticamente`);
+        }
       }
-      return "";
+    }
+
+    // Función helper: obtiene valor usando el mapping
+    const pick = (row: Record<string, unknown>, fieldKey: string): string => {
+      const excelCol = Object.entries(mapping).find(([, v]) => v === fieldKey)?.[0];
+      if (!excelCol) return "";
+      const val = row[excelCol];
+      if (val === null || val === undefined || val === "") return "";
+      return String(val).trim();
     };
+
     const mapped = rows
       .map((r, idx) => {
-        const caravana = pick(r, "caravana", "Caravana");
+        const caravana = pick(r, "caravana");
         if (!caravana) return null;
-        const sexoRaw = pick(r, "sexo", "Sexo").toLowerCase();
+        const sexoRaw = pick(r, "sexo").toLowerCase();
         const sexo = sexoRaw.startsWith("m") || sexoRaw === "♂" ? "macho" : "hembra";
-        const raza = pick(r, "raza", "Raza").toLowerCase();
-        const cat = pick(r, "categoria", "Categoría", "Categoria").toLowerCase();
-        const peso = pick(r, "peso", "peso_actual", "Peso (kg)", "Peso");
-        const fnac = pick(r, "fecha_nacimiento", "Nacimiento", "Fecha nacimiento");
+        const raza = pick(r, "raza").toLowerCase();
+        const cat = pick(r, "categoria").toLowerCase();
+        const peso = pick(r, "peso");
+        const fnac = pick(r, "fecha_nacimiento");
+        // Parseo seguro de fecha con soporte DD/MM/YYYY, DDMMYY, DDMMYYYY, ISO
+        const fechaNac = fnac ? parsearFechaGanadera(fnac) : null;
+        const potreroNombre = pick(r, "potrero").toLowerCase();
+        const potreroId = potreroNombre ? potreroMapName.get(potreroNombre) ?? null : null;
         return {
-          _rowIndex: idx + 2, // +1 for 1-indexed, +1 for header row
+          _rowIndex: idx + 2,
           establecimiento_id: activeId,
           caravana,
-          rfid: pick(r, "rfid", "RFID") || null,
+          rfid: pick(r, "rfid") || null,
           sexo: sexo as "macho" | "hembra",
-          peso_actual: peso ? Number(peso.replace(",", ".")) : null,
-          fecha_nacimiento: fnac ? new Date(fnac).toISOString().slice(0, 10) : null,
+          peso_actual: peso ? Number(String(peso).replace(",", ".")) : null,
+          fecha_nacimiento: fechaNac,
           raza_id: razaMapName.get(raza) ?? null,
           categoria_id: catMapName.get(cat) ?? null,
+          potrero_id: potreroId,
+          estado: pick(r, "estado") || "activo",
+          observaciones: pick(r, "observaciones") || null,
         };
       })
       .filter(Boolean) as any[];
-    if (mapped.length === 0) { toast.error("No se encontraron filas válidas (falta columna 'caravana')"); return; }
 
-    // Detect duplicates within the file by caravana (conflict key: establecimiento_id,caravana)
+    if (mapped.length === 0) {
+      toast.error("No se encontraron filas válidas (la columna Caravana está vacía o sin mapear)");
+      return;
+    }
+
+    // Detectar duplicados dentro del archivo
     const seen = new Map<string, number[]>();
     for (const row of mapped) {
       const key = String(row.caravana).toLowerCase();
@@ -165,33 +251,22 @@ function AnimalesPage() {
       seen.set(key, list);
     }
     const duplicateGroups = Array.from(seen.entries()).filter(([, rows]) => rows.length > 1);
-
     let strategy: "merge" | "ignore" = "merge";
     if (duplicateGroups.length > 0) {
-      const preview = duplicateGroups
-        .slice(0, 10)
+      const preview = duplicateGroups.slice(0, 10)
         .map(([car, rows]) => `  • Caravana "${car}" — filas ${rows.join(", ")}`)
         .join("\n");
       const more = duplicateGroups.length > 10 ? `\n  …y ${duplicateGroups.length - 10} más` : "";
-      console.table(
-        duplicateGroups.map(([car, rows]) => ({ caravana: car, filas: rows.join(", "), ocurrencias: rows.length })),
-      );
-      const msg =
-        `Se detectaron ${duplicateGroups.length} caravana(s) duplicada(s) en el archivo:\n\n${preview}${more}\n\n` +
-        `Aceptar = FUSIONAR (conservar la última fila de cada caravana).\n` +
-        `Cancelar = IGNORAR duplicados (conservar la primera fila).`;
-      strategy = window.confirm(msg) ? "merge" : "ignore";
+      strategy = window.confirm(
+        `Se detectaron ${duplicateGroups.length} caravana(s) duplicada(s):\n\n${preview}${more}\n\nAceptar = FUSIONAR (conservar la última fila).\nCancelar = IGNORAR duplicados (conservar la primera fila).`
+      ) ? "merge" : "ignore";
     }
-
-    // Deduplicate according to strategy
     const dedup = new Map<string, any>();
     for (const row of mapped) {
       const key = String(row.caravana).toLowerCase();
       if (strategy === "merge" || !dedup.has(key)) dedup.set(key, row);
     }
     const payload = Array.from(dedup.values()).map(({ _rowIndex, ...r }) => r);
-
-    // Batch insert with per-batch error reporting
     const BATCH = 500;
     let inserted = 0;
     const errors: string[] = [];
@@ -201,26 +276,17 @@ function AnimalesPage() {
         .from("animales")
         .upsert(batch, { onConflict: "establecimiento_id,caravana", count: "exact" });
       if (error) {
-        errors.push(`Lote ${Math.floor(i / BATCH) + 1} (filas ${i + 1}-${i + batch.length}): ${error.message}`);
-        console.error("[import animales] batch error:", error, batch);
+        errors.push(`Lote ${Math.floor(i / BATCH) + 1}: ${error.message}`);
       } else {
         inserted += count ?? batch.length;
       }
     }
-
-    const skipped = mapped.length - payload.length;
-    const summary = [
-      `${inserted} animales ${strategy === "merge" ? "importados/actualizados" : "importados"}`,
-      skipped > 0 ? `${skipped} duplicado(s) ${strategy === "merge" ? "fusionado(s)" : "ignorado(s)"}` : null,
-      errors.length > 0 ? `${errors.length} lote(s) con error` : null,
-    ].filter(Boolean).join(" · ");
-
-    if (errors.length > 0) {
-      toast.error(summary, { description: errors.slice(0, 3).join("\n"), duration: 10000 });
-    } else {
-      toast.success(summary);
-    }
+    const rowErrors: ImportResult["errores"] = [];
+    for (const e of errors) rowErrors.push({ fila: 0, caravana: "lote", motivo: e });
+    if (rowErrors.length === 0) toast.success(`${inserted} animales importados`);
+    else toast.warning(`${inserted} importados · ${rowErrors.length} errores`);
     load();
+    return { total: payload.length, insertados: inserted, actualizados: 0, errores: rowErrors };
   }
 
   if (!active) return <div className="p-8">Seleccioná un establecimiento.</div>;
@@ -249,10 +315,27 @@ function AnimalesPage() {
           <p className="text-muted-foreground text-sm">{items.length} animales en {active.nombre}</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <ImportButton onRows={handleImport} />
+          <Button variant="outline" onClick={() => generarInformeRodeo(activeId!, active.nombre)}>
+            <FileDown className="h-4 w-4 mr-2" />PDF
+          </Button>
+          <Button variant="outline" onClick={handleImportFile}>
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importar Excel
+          </Button>
           <ExportMenu items={filtered} cols={exportCols} filename={`animales_${active.nombre}`} />
           <Button onClick={openNew}><Plus className="h-4 w-4 mr-2" />Nuevo animal</Button>
         </div>
+
+        <ImportPreview
+          open={previewOpen}
+          rows={previewRows}
+          fieldDefs={ANIMAL_FIELDS}
+          keyColumn={previewRows[0] ? (Object.keys(previewRows[0]).find(k =>
+            ["caravana","numero","nro","tag","id"].includes(k.trim().toLowerCase())
+          ) ?? Object.keys(previewRows[0])[0]) : undefined}
+          onConfirm={handleImport}
+          onClose={() => setPreviewOpen(false)}
+        />
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) { setEditing(null); setForm(emptyForm); } }}>
           <DialogContent className="max-w-2xl">
             <DialogHeader><DialogTitle>{editing ? "Editar animal" : "Nuevo animal"}</DialogTitle></DialogHeader>

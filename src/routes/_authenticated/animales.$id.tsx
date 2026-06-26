@@ -21,9 +21,17 @@ function AnimalDetail() {
   const [sanidad, setSanidad] = useState<any[]>([]);
   const [servicios, setServicios] = useState<any[]>([]);
   const [diags, setDiags] = useState<any[]>([]);
+  const [madre, setMadre] = useState<any>(null);
+  const [padre, setPadre] = useState<any>(null);
+  const [crias, setCrias] = useState<any[]>([]);
 
   useEffect(() => {
-    supabase.from("animales").select("*, razas(nombre), categorias(nombre)").eq("id", id).single().then(({ data }) => setAnimal(data));
+    supabase.from("animales").select("*, razas(nombre), categorias(nombre), potrero:potreros(nombre)").eq("id", id).single().then(({ data }) => {
+      setAnimal(data);
+      if (data?.madre_id) supabase.from("animales").select("id, caravana, categorias(nombre), razas(nombre)").eq("id", data.madre_id).single().then(({ data: m }) => setMadre(m));
+      if (data?.padre_id) supabase.from("animales").select("id, caravana, categorias(nombre), razas(nombre)").eq("id", data.padre_id).single().then(({ data: p }) => setPadre(p));
+      supabase.from("animales").select("id, caravana, sexo, fecha_nacimiento, categorias(nombre)").eq("madre_id", id).order("fecha_nacimiento").then(({ data: c }) => setCrias(c ?? []));
+    });
     supabase.from("pesadas").select("*").eq("animal_id", id).order("fecha", { ascending: false }).then(({ data }) => setPesadas(data ?? []));
     supabase.from("sanidad").select("*").eq("animal_id", id).order("fecha", { ascending: false }).then(({ data }) => setSanidad(data ?? []));
     supabase.from("servicios").select("*").eq("vaca_id", id).order("fecha", { ascending: false }).then(({ data }) => setServicios(data ?? []));
@@ -54,6 +62,7 @@ function AnimalDetail() {
           <div><div className="text-xs text-muted-foreground">Peso actual</div><div className="font-medium">{animal.peso_actual ? `${fmtNum(animal.peso_actual)} kg` : "—"}</div></div>
           <div><div className="text-xs text-muted-foreground">Estado reproductivo</div><div className="font-medium">{animal.estado_reproductivo ?? "—"}</div></div>
           <div><div className="text-xs text-muted-foreground">RFID</div><div className="font-medium">{animal.rfid ?? "—"}</div></div>
+          <div><div className="text-xs text-muted-foreground">Potrero</div><div className="font-medium">{(animal as any).potrero?.nombre ?? "—"}</div></div>
         </div>
       </Card>
 
@@ -63,6 +72,7 @@ function AnimalDetail() {
           <TabsTrigger value="sanidad">Sanidad ({sanidad.length})</TabsTrigger>
           <TabsTrigger value="repro">Reproducción ({servicios.length + diags.length})</TabsTrigger>
           <TabsTrigger value="archivos">Archivos</TabsTrigger>
+          <TabsTrigger value="genealogia">Genealogía</TabsTrigger>
         </TabsList>
         <TabsContent value="pesadas"><Card className="p-4">
           {pesadas.length === 0 ? <p className="text-muted-foreground text-sm">Sin pesadas registradas.</p> : (
@@ -89,6 +99,95 @@ function AnimalDetail() {
         <TabsContent value="archivos"><Card className="p-4">
           <Attachments entityType="animal" entityId={id} categoria="foto_animal" />
         </Card></TabsContent>
+
+        <TabsContent value="genealogia">
+          <Card className="p-6 space-y-6">
+            {/* Padres */}
+            <div>
+              <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">Padres</h3>
+              <div className="grid md:grid-cols-2 gap-3">
+                <div className="border rounded-lg p-4">
+                  <div className="text-xs text-muted-foreground mb-1">Madre</div>
+                  {madre ? (
+                    <a href={`/animales/${madre.id}`} className="flex items-center gap-2 hover:underline">
+                      <Beef className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div className="font-mono font-semibold">{madre.caravana}</div>
+                        <div className="text-xs text-muted-foreground">{madre.categorias?.nombre ?? "—"} · {madre.razas?.nombre ?? "—"}</div>
+                      </div>
+                    </a>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{animal.madre_id ? "Cargando…" : "No registrada"}</p>
+                  )}
+                </div>
+                <div className="border rounded-lg p-4">
+                  <div className="text-xs text-muted-foreground mb-1">Padre</div>
+                  {padre ? (
+                    <a href={`/animales/${padre.id}`} className="flex items-center gap-2 hover:underline">
+                      <Beef className="h-4 w-4 text-muted-foreground" />
+                      <div>
+                        <div className="font-mono font-semibold">{padre.caravana}</div>
+                        <div className="text-xs text-muted-foreground">{padre.categorias?.nombre ?? "—"} · {padre.razas?.nombre ?? "—"}</div>
+                      </div>
+                    </a>
+                  ) : (
+                    <p className="text-sm text-muted-foreground">{animal.padre_id ? "Cargando…" : "No registrado"}</p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Árbol visual simple */}
+            {(madre || padre) && (
+              <div className="flex flex-col items-center gap-1 py-2">
+                <div className="flex gap-8 items-end">
+                  <div className={`text-center px-3 py-2 rounded-lg border text-sm ${madre ? "bg-background" : "opacity-30 bg-muted"}`}>
+                    <div className="text-xs text-muted-foreground">♀ Madre</div>
+                    <div className="font-mono font-semibold">{madre?.caravana ?? "?"}</div>
+                  </div>
+                  <div className={`text-center px-3 py-2 rounded-lg border text-sm ${padre ? "bg-background" : "opacity-30 bg-muted"}`}>
+                    <div className="text-xs text-muted-foreground">♂ Padre</div>
+                    <div className="font-mono font-semibold">{padre?.caravana ?? "?"}</div>
+                  </div>
+                </div>
+                <div className="flex gap-8 items-start">
+                  <div className="w-px h-5 bg-border mx-auto" style={{marginLeft: "calc(50% - 1px)", width: "1px"}}></div>
+                </div>
+                <div className="border-2 border-primary rounded-lg px-4 py-2 text-center">
+                  <div className="text-xs text-muted-foreground">{animal.sexo === "hembra" ? "♀" : "♂"}</div>
+                  <div className="font-mono font-bold">{animal.caravana}</div>
+                </div>
+              </div>
+            )}
+
+            {/* Crías */}
+            <div>
+              <h3 className="font-semibold mb-3 text-sm uppercase tracking-wide text-muted-foreground">
+                Crías ({crias.length})
+              </h3>
+              {crias.length === 0 ? (
+                <p className="text-sm text-muted-foreground">Sin crías registradas.</p>
+              ) : (
+                <div className="space-y-2">
+                  {crias.map((c) => (
+                    <a key={c.id} href={`/animales/${c.id}`} className="flex items-center justify-between border rounded-lg px-4 py-2.5 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3">
+                        <Beef className="h-4 w-4 text-muted-foreground" />
+                        <div>
+                          <span className="font-mono font-semibold">{c.caravana}</span>
+                          <span className="ml-2 text-sm text-muted-foreground">{c.categorias?.nombre ?? "—"}</span>
+                        </div>
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        {c.sexo === "macho" ? "♂" : "♀"} · {c.fecha_nacimiento ? fmtDate(c.fecha_nacimiento) : "—"}
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          </Card>
+        </TabsContent>
       </Tabs>
     </div>
   );

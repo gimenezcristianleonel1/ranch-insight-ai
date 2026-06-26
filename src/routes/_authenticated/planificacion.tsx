@@ -84,7 +84,7 @@ function PlanInner({ estId }: { estId: string }) {
       supabase.from("animales").select("id, caravana").eq("establecimiento_id", estId).limit(500),
       supabase.from("potreros").select("id, nombre").eq("establecimiento_id", estId),
       supabase.from("sanidad").select("id, producto, fecha").eq("establecimiento_id", estId).order("fecha", { ascending: false }).limit(100),
-      supabase.from("servicios").select("id, tipo, fecha_inicio").eq("establecimiento_id", estId).order("fecha_inicio", { ascending: false }).limit(100),
+      supabase.from("servicios").select("id, tipo, fecha").eq("establecimiento_id", estId).order("fecha", { ascending: false }).limit(100),
     ]);
     setRefs({ animales: a.data ?? [], potreros: p.data ?? [], sanidad: s.data ?? [], servicios: sv.data ?? [] });
   }
@@ -433,7 +433,7 @@ function TareaDialog({ children, estId, refs, onSaved, initial }: { children: Re
               <RefSelect label="Animal" value={f.animal_id} onChange={(v) => setF({ ...f, animal_id: v })} options={refs.animales.map((a: any) => ({ id: a.id, label: a.caravana }))} />
               <RefSelect label="Potrero" value={f.potrero_id} onChange={(v) => setF({ ...f, potrero_id: v })} options={refs.potreros.map((p: any) => ({ id: p.id, label: p.nombre }))} />
               <RefSelect label="Sanidad" value={f.sanidad_id} onChange={(v) => setF({ ...f, sanidad_id: v })} options={refs.sanidad.map((s: any) => ({ id: s.id, label: `${s.producto} · ${s.fecha}` }))} />
-              <RefSelect label="Servicio" value={f.servicio_id} onChange={(v) => setF({ ...f, servicio_id: v })} options={refs.servicios.map((s: any) => ({ id: s.id, label: `${s.tipo} · ${s.fecha_inicio}` }))} />
+              <RefSelect label="Servicio" value={f.servicio_id} onChange={(v) => setF({ ...f, servicio_id: v })} options={refs.servicios.map((s: any) => ({ id: s.id, label: `${s.tipo} · ${s.fecha}` }))} />
             </div>
           </div>
 

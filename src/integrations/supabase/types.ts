@@ -791,6 +791,39 @@ export type Database = {
           },
         ]
       }
+      import_aliases: {
+        Row: {
+          alias_texto: string
+          campo_sistema: string
+          confirmaciones: number
+          created_at: string
+          id: string
+          tipo: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          alias_texto: string
+          campo_sistema: string
+          confirmaciones?: number
+          created_at?: string
+          id?: string
+          tipo?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          alias_texto?: string
+          campo_sistema?: string
+          confirmaciones?: number
+          created_at?: string
+          id?: string
+          tipo?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       movimientos: {
         Row: {
           animal_id: string | null
@@ -980,6 +1013,45 @@ export type Database = {
           },
         ]
       }
+      plantillas_importacion: {
+        Row: {
+          configuracion_json: Json
+          created_at: string
+          descripcion: string | null
+          id: string
+          nombre: string
+          tipo: string
+          ultima_vez: string | null
+          updated_at: string
+          user_id: string
+          usos: number
+        }
+        Insert: {
+          configuracion_json?: Json
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre: string
+          tipo?: string
+          ultima_vez?: string | null
+          updated_at?: string
+          user_id: string
+          usos?: number
+        }
+        Update: {
+          configuracion_json?: Json
+          created_at?: string
+          descripcion?: string | null
+          id?: string
+          nombre?: string
+          tipo?: string
+          ultima_vez?: string | null
+          updated_at?: string
+          user_id?: string
+          usos?: number
+        }
+        Relationships: []
+      }
       potreros: {
         Row: {
           aguadas: number | null
@@ -1087,6 +1159,7 @@ export type Database = {
           id: string
           observaciones: string | null
           producto: string
+          proxima_aplicacion: string | null
           tipo: Database["public"]["Enums"]["tipo_sanidad"]
           unidad: string | null
           veterinario: string | null
@@ -1102,6 +1175,7 @@ export type Database = {
           id?: string
           observaciones?: string | null
           producto: string
+          proxima_aplicacion?: string | null
           tipo?: Database["public"]["Enums"]["tipo_sanidad"]
           unidad?: string | null
           veterinario?: string | null
@@ -1117,6 +1191,7 @@ export type Database = {
           id?: string
           observaciones?: string | null
           producto?: string
+          proxima_aplicacion?: string | null
           tipo?: Database["public"]["Enums"]["tipo_sanidad"]
           unidad?: string | null
           veterinario?: string | null
@@ -1204,6 +1279,7 @@ export type Database = {
           animal_id: string | null
           categoria: string | null
           completada_at: string | null
+          completada_en: string | null
           created_by: string | null
           descripcion: string | null
           establecimiento_id: string
@@ -1225,6 +1301,7 @@ export type Database = {
           animal_id?: string | null
           categoria?: string | null
           completada_at?: string | null
+          completada_en?: string | null
           created_by?: string | null
           descripcion?: string | null
           establecimiento_id: string
@@ -1246,6 +1323,7 @@ export type Database = {
           animal_id?: string | null
           categoria?: string | null
           completada_at?: string | null
+          completada_en?: string | null
           created_by?: string | null
           descripcion?: string | null
           establecimiento_id?: string
@@ -1324,9 +1402,66 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      v_balance_forrajero: {
+        Row: {
+          establecimiento_id: string | null
+          ev_por_ha: number | null
+          ev_totales: number | null
+          hectareas: number | null
+          potrero_id: string | null
+          potrero_nombre: string | null
+          req_ms_dia: number | null
+          total_animales: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animales_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animales_potrero_id_fkey"
+            columns: ["potrero_id"]
+            isOneToOne: false
+            referencedRelation: "potreros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_stock_potrero: {
+        Row: {
+          cantidad: number | null
+          categoria: string | null
+          establecimiento_id: string | null
+          ev_total: number | null
+          ev_unitario: number | null
+          hectareas: number | null
+          potrero_id: string | null
+          potrero_nombre: string | null
+          sexo: Database["public"]["Enums"]["sexo_animal"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animales_establecimiento_id_fkey"
+            columns: ["establecimiento_id"]
+            isOneToOne: false
+            referencedRelation: "establecimientos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animales_potrero_id_fkey"
+            columns: ["potrero_id"]
+            isOneToOne: false
+            referencedRelation: "potreros"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      ev_potrero: { Args: { _potrero_id: string }; Returns: number }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1335,6 +1470,7 @@ export type Database = {
         Returns: boolean
       }
       is_member: { Args: { _est: string; _user: string }; Returns: boolean }
+      stock_potrero: { Args: { _potrero_id: string }; Returns: number }
     }
     Enums: {
       app_role: "admin" | "encargado" | "asesor" | "auditor"

@@ -19,9 +19,13 @@ import { Route as AuthenticatedReproduccionRouteImport } from './routes/_authent
 import { Route as AuthenticatedPotrerosRouteImport } from './routes/_authenticated/potreros'
 import { Route as AuthenticatedPlanificacionRouteImport } from './routes/_authenticated/planificacion'
 import { Route as AuthenticatedPesadasRouteImport } from './routes/_authenticated/pesadas'
+import { Route as AuthenticatedPasturasRouteImport } from './routes/_authenticated/pasturas'
 import { Route as AuthenticatedMovimientosRouteImport } from './routes/_authenticated/movimientos'
+import { Route as AuthenticatedMiembrosRouteImport } from './routes/_authenticated/miembros'
 import { Route as AuthenticatedMangaRouteImport } from './routes/_authenticated/manga'
+import { Route as AuthenticatedInfraestructuraRouteImport } from './routes/_authenticated/infraestructura'
 import { Route as AuthenticatedIaRouteImport } from './routes/_authenticated/ia'
+import { Route as AuthenticatedFinanzasRouteImport } from './routes/_authenticated/finanzas'
 import { Route as AuthenticatedEstablecimientosRouteImport } from './routes/_authenticated/establecimientos'
 import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 import { Route as AuthenticatedAnimalesRouteImport } from './routes/_authenticated/animales'
@@ -78,20 +82,41 @@ const AuthenticatedPesadasRoute = AuthenticatedPesadasRouteImport.update({
   path: '/pesadas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedPasturasRoute = AuthenticatedPasturasRouteImport.update({
+  id: '/pasturas',
+  path: '/pasturas',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMovimientosRoute =
   AuthenticatedMovimientosRouteImport.update({
     id: '/movimientos',
     path: '/movimientos',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMiembrosRoute = AuthenticatedMiembrosRouteImport.update({
+  id: '/miembros',
+  path: '/miembros',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedMangaRoute = AuthenticatedMangaRouteImport.update({
   id: '/manga',
   path: '/manga',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedInfraestructuraRoute =
+  AuthenticatedInfraestructuraRouteImport.update({
+    id: '/infraestructura',
+    path: '/infraestructura',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedIaRoute = AuthenticatedIaRouteImport.update({
   id: '/ia',
   path: '/ia',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedFinanzasRoute = AuthenticatedFinanzasRouteImport.update({
+  id: '/finanzas',
+  path: '/finanzas',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedEstablecimientosRoute =
@@ -123,9 +148,13 @@ export interface FileRoutesByFullPath {
   '/animales': typeof AuthenticatedAnimalesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/finanzas': typeof AuthenticatedFinanzasRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/infraestructura': typeof AuthenticatedInfraestructuraRoute
   '/manga': typeof AuthenticatedMangaRoute
+  '/miembros': typeof AuthenticatedMiembrosRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
+  '/pasturas': typeof AuthenticatedPasturasRoute
   '/pesadas': typeof AuthenticatedPesadasRoute
   '/planificacion': typeof AuthenticatedPlanificacionRoute
   '/potreros': typeof AuthenticatedPotrerosRoute
@@ -141,9 +170,13 @@ export interface FileRoutesByTo {
   '/animales': typeof AuthenticatedAnimalesRouteWithChildren
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/finanzas': typeof AuthenticatedFinanzasRoute
   '/ia': typeof AuthenticatedIaRoute
+  '/infraestructura': typeof AuthenticatedInfraestructuraRoute
   '/manga': typeof AuthenticatedMangaRoute
+  '/miembros': typeof AuthenticatedMiembrosRoute
   '/movimientos': typeof AuthenticatedMovimientosRoute
+  '/pasturas': typeof AuthenticatedPasturasRoute
   '/pesadas': typeof AuthenticatedPesadasRoute
   '/planificacion': typeof AuthenticatedPlanificacionRoute
   '/potreros': typeof AuthenticatedPotrerosRoute
@@ -161,9 +194,13 @@ export interface FileRoutesById {
   '/_authenticated/animales': typeof AuthenticatedAnimalesRouteWithChildren
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/establecimientos': typeof AuthenticatedEstablecimientosRoute
+  '/_authenticated/finanzas': typeof AuthenticatedFinanzasRoute
   '/_authenticated/ia': typeof AuthenticatedIaRoute
+  '/_authenticated/infraestructura': typeof AuthenticatedInfraestructuraRoute
   '/_authenticated/manga': typeof AuthenticatedMangaRoute
+  '/_authenticated/miembros': typeof AuthenticatedMiembrosRoute
   '/_authenticated/movimientos': typeof AuthenticatedMovimientosRoute
+  '/_authenticated/pasturas': typeof AuthenticatedPasturasRoute
   '/_authenticated/pesadas': typeof AuthenticatedPesadasRoute
   '/_authenticated/planificacion': typeof AuthenticatedPlanificacionRoute
   '/_authenticated/potreros': typeof AuthenticatedPotrerosRoute
@@ -181,9 +218,13 @@ export interface FileRouteTypes {
     | '/animales'
     | '/dashboard'
     | '/establecimientos'
+    | '/finanzas'
     | '/ia'
+    | '/infraestructura'
     | '/manga'
+    | '/miembros'
     | '/movimientos'
+    | '/pasturas'
     | '/pesadas'
     | '/planificacion'
     | '/potreros'
@@ -199,9 +240,13 @@ export interface FileRouteTypes {
     | '/animales'
     | '/dashboard'
     | '/establecimientos'
+    | '/finanzas'
     | '/ia'
+    | '/infraestructura'
     | '/manga'
+    | '/miembros'
     | '/movimientos'
+    | '/pasturas'
     | '/pesadas'
     | '/planificacion'
     | '/potreros'
@@ -218,9 +263,13 @@ export interface FileRouteTypes {
     | '/_authenticated/animales'
     | '/_authenticated/dashboard'
     | '/_authenticated/establecimientos'
+    | '/_authenticated/finanzas'
     | '/_authenticated/ia'
+    | '/_authenticated/infraestructura'
     | '/_authenticated/manga'
+    | '/_authenticated/miembros'
     | '/_authenticated/movimientos'
+    | '/_authenticated/pasturas'
     | '/_authenticated/pesadas'
     | '/_authenticated/planificacion'
     | '/_authenticated/potreros'
@@ -310,11 +359,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPesadasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/pasturas': {
+      id: '/_authenticated/pasturas'
+      path: '/pasturas'
+      fullPath: '/pasturas'
+      preLoaderRoute: typeof AuthenticatedPasturasRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/movimientos': {
       id: '/_authenticated/movimientos'
       path: '/movimientos'
       fullPath: '/movimientos'
       preLoaderRoute: typeof AuthenticatedMovimientosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/miembros': {
+      id: '/_authenticated/miembros'
+      path: '/miembros'
+      fullPath: '/miembros'
+      preLoaderRoute: typeof AuthenticatedMiembrosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/manga': {
@@ -324,11 +387,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedMangaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/infraestructura': {
+      id: '/_authenticated/infraestructura'
+      path: '/infraestructura'
+      fullPath: '/infraestructura'
+      preLoaderRoute: typeof AuthenticatedInfraestructuraRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/ia': {
       id: '/_authenticated/ia'
       path: '/ia'
       fullPath: '/ia'
       preLoaderRoute: typeof AuthenticatedIaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/finanzas': {
+      id: '/_authenticated/finanzas'
+      path: '/finanzas'
+      fullPath: '/finanzas'
+      preLoaderRoute: typeof AuthenticatedFinanzasRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/establecimientos': {
@@ -379,9 +456,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAnimalesRoute: typeof AuthenticatedAnimalesRouteWithChildren
   AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedEstablecimientosRoute: typeof AuthenticatedEstablecimientosRoute
+  AuthenticatedFinanzasRoute: typeof AuthenticatedFinanzasRoute
   AuthenticatedIaRoute: typeof AuthenticatedIaRoute
+  AuthenticatedInfraestructuraRoute: typeof AuthenticatedInfraestructuraRoute
   AuthenticatedMangaRoute: typeof AuthenticatedMangaRoute
+  AuthenticatedMiembrosRoute: typeof AuthenticatedMiembrosRoute
   AuthenticatedMovimientosRoute: typeof AuthenticatedMovimientosRoute
+  AuthenticatedPasturasRoute: typeof AuthenticatedPasturasRoute
   AuthenticatedPesadasRoute: typeof AuthenticatedPesadasRoute
   AuthenticatedPlanificacionRoute: typeof AuthenticatedPlanificacionRoute
   AuthenticatedPotrerosRoute: typeof AuthenticatedPotrerosRoute
@@ -393,9 +474,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAnimalesRoute: AuthenticatedAnimalesRouteWithChildren,
   AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedEstablecimientosRoute: AuthenticatedEstablecimientosRoute,
+  AuthenticatedFinanzasRoute: AuthenticatedFinanzasRoute,
   AuthenticatedIaRoute: AuthenticatedIaRoute,
+  AuthenticatedInfraestructuraRoute: AuthenticatedInfraestructuraRoute,
   AuthenticatedMangaRoute: AuthenticatedMangaRoute,
+  AuthenticatedMiembrosRoute: AuthenticatedMiembrosRoute,
   AuthenticatedMovimientosRoute: AuthenticatedMovimientosRoute,
+  AuthenticatedPasturasRoute: AuthenticatedPasturasRoute,
   AuthenticatedPesadasRoute: AuthenticatedPesadasRoute,
   AuthenticatedPlanificacionRoute: AuthenticatedPlanificacionRoute,
   AuthenticatedPotrerosRoute: AuthenticatedPotrerosRoute,
@@ -416,13 +501,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

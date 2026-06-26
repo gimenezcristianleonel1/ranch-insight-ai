@@ -14,20 +14,180 @@ import { fmtDate } from "@/lib/format";
 import { ExportMenu } from "@/components/data-io";
 import { ConfirmDelete } from "@/components/confirm";
 import { AttachmentsButton } from "@/components/attachments-dialog";
+import { Upload, FileDown } from "lucide-react";
+import { generarInformeSanidad } from "@/lib/pdf-reports";
+import { ImportPreview, type FieldDef, type ColumnMapping, type ImportResult } from "@/components/import-preview";
+import { pickFile, parseFile, parsearFechaGanadera } from "@/lib/io";
 
 export const Route = createFileRoute("/_authenticated/sanidad")({
   head: () => ({ meta: [{ title: "Sanidad — Ganadero IA" }] }),
   component: SanidadPage,
 });
 
+const SANIDAD_FIELDS: FieldDef[] = [
+  {
+    key: "caravana", label: "Caravana", required: true, esCaravana: true,
+    aliases: ["caravana", "nro", "numero", "id", "animal", "tag", "carav"],
+    validate: (v) => !v.trim() ? "Caravana vacía" : null,
+  },
+  {
+    key: "tipo", label: "Tipo", required: true,
+    aliases: ["tipo", "tipo tratamiento", "tipo sanidad", "tipo evento"],
+    hint: "vacuna / tratamiento / antiparasitario / enfermedad",
+    validate: (v) => {
+      const valid = ["vacuna","tratamiento","antiparasitario","enfermedad"];
+      const norm = v.trim().toLowerCase();
+      if (!norm) return "Tipo vacío";
+      if (!valid.some(t => norm.startsWith(t.slice(0,4)))) return `Tipo inválido: "${v}". Use: ${valid.join(", ")}`;
+      return null;
+    },
+  },
+  {
+    key: "producto", label: "Producto", required: true,
+    aliases: ["producto", "vacuna", "medicamento", "droga", "producto sanidad"],
+    validate: (v) => !v.trim() ? "Producto vacío" : null,
+  },
+  {
+    key: "fecha", label: "Fecha", esFecha: true,
+    aliases: ["fecha", "fecha aplicacion", "fecha tratamiento", "fecha vacuna", "date", "f aplic"],
+  },
+  {
+    key: "dosis", label: "Dosis",
+    aliases: ["dosis", "cantidad", "ml", "cc", "dosis ml"],
+    validate: (v) => v && isNaN(Number(v.replace(",","."))) ? `Dosis inválida: "${v}"` : null,
+  },
+  {
+    key: "unidad", label: "Unidad",
+    aliases: ["unidad", "unidades", "ud", "unit"],
+    hint: "ml, cc, comprimidos…",
+  },
+  {
+    key: "costo", label: "Costo ($)",
+    aliases: ["costo", "precio", "valor", "costo unitario"],
+    validate: (v) => v && isNaN(Number(v.replace(",","."))) ? `Costo inválido: "${v}"` : null,
+  },
+  {
+    key: "veterinario", label: "Veterinario",
+    aliases: ["veterinario", "vet", "medico", "profesional"],
+  },
+  {
+    key: "observaciones", label: "Observaciones",
+    aliases: ["observaciones", "obs", "notas", "nota", "comentarios"],
+  },
+];
+
+// Normaliza tipo para que coincida con el enum de BD
+function normalizarTipo(v: string): string {
+  const t = v.trim().toLowerCase();
+  if (t.startsWith("vacu")) return "vacuna";
+  if (t.startsWith("anti")) return "antiparasitario";
+  if (t.startsWith("enf")) return "enfermedad";
+  return "tratamiento";
+}
+
 function SanidadPage() {
   const { activeId, active } = useActiveEstablecimiento();
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewRows, setPreviewRows] = useState<Record<string, string>[]>([]);
+
+  async function handlePickFile() {
+    const file = await pickFile();
+    if (!file) return;
+    const rows = await parseFile(file);
+    if (!rows.length) { toast.error("El archivo está vacío"); return; }
+    setPreviewRows(rows);
+    setPreviewOpen(true);
+  }
+
+  async function handleImport(
+    mapping: ColumnMapping,
+    rows: Record<string, string>[]
+  ): Promise<ImportResult> {
+    if (!activeId) return { total: 0, insertados: 0, actualizados: 0, errores: [] };
+
+    const pick = (row: Record<string, string>, fieldKey: string) => {
+      const col = Object.entries(mapping).find(([, v]) => v === fieldKey)?.[0];
+      return col ? (row[col] ?? "").trim() : "";
+    };
+
+    const fechaDefault = new Date().toISOString().slice(0, 10);
+    const errores: ImportResult["errores"] = [];
+
+    // Resolver caravanas en lote
+    const caravanas = [...new Set(rows.map(r => pick(r, "caravana")).filter(Boolean))];
+    const { data: animals } = await supabase
+      .from("animales").select("id, caravana")
+      .eq("establecimiento_id", activeId).in("caravana", caravanas);
+    const animalMap = new Map((animals ?? []).map(a => [a.caravana.toLowerCase(), a.id]));
+
+    const payload: any[] = [];
+    rows.forEach((row, idx) => {
+      const fila = idx + 2;
+      const carRaw = pick(row, "caravana");
+      const tipoRaw = pick(row, "tipo");
+      const prodRaw = pick(row, "producto");
+
+      if (!carRaw) { errores.push({ fila, caravana: "", motivo: "Caravana vacía" }); return; }
+      if (!tipoRaw) { errores.push({ fila, caravana: carRaw, motivo: "Tipo vacío" }); return; }
+      if (!prodRaw) { errores.push({ fila, caravana: carRaw, motivo: "Producto vacío" }); return; }
+
+      const animalId = animalMap.get(carRaw.toLowerCase());
+      if (!animalId) {
+        errores.push({ fila, caravana: carRaw, motivo: "Caravana no existe en el rodeo" });
+        return;
+      }
+
+      const dosisParsed = pick(row, "dosis");
+      const costoParsed = pick(row, "costo");
+      const fechaRaw = pick(row, "fecha");
+
+      payload.push({
+        establecimiento_id: activeId,
+        animal_id: animalId,
+        tipo: normalizarTipo(tipoRaw),
+        producto: prodRaw,
+        fecha: fechaRaw ? (parsearFechaGanadera(fechaRaw) ?? fechaDefault) : fechaDefault,
+        dosis: dosisParsed ? Number(dosisParsed.replace(",", ".")) || null : null,
+        unidad: pick(row, "unidad") || null,
+        costo: costoParsed ? Number(costoParsed.replace(",", ".")) || null : null,
+        veterinario: pick(row, "veterinario") || null,
+        observaciones: pick(row, "observaciones") || null,
+      });
+    });
+
+    let insertados = 0;
+    const BATCH = 500;
+    for (let i = 0; i < payload.length; i += BATCH) {
+      const { error, count } = await supabase.from("sanidad")
+        .insert(payload.slice(i, i + BATCH), { count: "exact" });
+      if (error) errores.push({ fila: 0, caravana: "lote", motivo: error.message });
+      else insertados += count ?? payload.slice(i, i + BATCH).length;
+    }
+
+    if (insertados > 0 && errores.filter(e => e.fila !== 0).length === 0)
+      toast.success(`${insertados} registros de sanidad importados`);
+    else if (insertados > 0)
+      toast.warning(`${insertados} importados · ${errores.length} errores`);
+
+    return { total: rows.length, insertados, actualizados: 0, errores };
+  }
+
   if (!active) return <div className="p-8">Seleccioná un establecimiento.</div>;
   return (
     <div className="p-6 lg:p-8 max-w-3xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-semibold">Sanidad</h1>
-        <p className="text-muted-foreground text-sm">Tratamientos individuales o masivos por lote.</p>
+      <div className="flex items-end justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-3xl font-semibold">Sanidad</h1>
+          <p className="text-muted-foreground text-sm">Tratamientos individuales o masivos por lote.</p>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={() => generarInformeSanidad(activeId!, active.nombre)}>
+            <FileDown className="h-4 w-4 mr-2" />PDF
+          </Button>
+          <Button variant="outline" onClick={handlePickFile}>
+            <Upload className="h-4 w-4 mr-2" />Importar Excel
+          </Button>
+        </div>
       </div>
       <Tabs defaultValue="individual">
         <TabsList className="grid grid-cols-2 w-full">
@@ -38,6 +198,14 @@ function SanidadPage() {
         <TabsContent value="masivo"><Masivo estId={activeId!} /></TabsContent>
       </Tabs>
       <Recientes estId={activeId!} />
+      <ImportPreview
+        open={previewOpen}
+        rows={previewRows}
+        fieldDefs={SANIDAD_FIELDS}
+        tipo="sanidad"
+        onConfirm={handleImport}
+        onClose={() => setPreviewOpen(false)}
+      />
     </div>
   );
 }
