@@ -67,7 +67,7 @@ function FinanzasInner({ estId, estNombre }: { estId: string; estNombre: string 
   const [catEdit, setCatEdit] = useState<string | null>(null);
   const [catForm, setCatForm] = useState({ nombre: "", tipo: "ingreso" });
   const [catSaving, setCatSaving] = useState(false);
-  const [filtroTipo, setFiltroTipo] = useState<"todos" | "ingreso" | "egreso">("todos");
+  const [filtroTipo, setFiltroTipo] = useState<"todos" | "ingreso" | "egreso" | "categorias">("todos");
 
   async function load() {
     const { data } = await supabase

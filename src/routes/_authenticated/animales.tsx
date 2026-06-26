@@ -165,7 +165,7 @@ function AnimalesPage() {
 
   async function handleImport(mapping: ColumnMapping, rows: Record<string, string>[]): Promise<ImportResult> {
     setPreviewOpen(false);
-    if (!activeId) return;
+    if (!activeId) return { total: rows.length, insertados: 0, actualizados: 0, errores: [] };
     const razaMapName = new Map(razas.map((r) => [r.nombre.toLowerCase(), r.id]));
     const catMapName = new Map(cats.map((c) => [c.nombre.toLowerCase(), c.id]));
     // Cargar potreros para mapeo por nombre
@@ -239,7 +239,7 @@ function AnimalesPage() {
 
     if (mapped.length === 0) {
       toast.error("No se encontraron filas válidas (la columna Caravana está vacía o sin mapear)");
-      return;
+      return { total: rows.length, insertados: 0, actualizados: 0, errores: [] };
     }
 
     // Detectar duplicados dentro del archivo
@@ -330,9 +330,6 @@ function AnimalesPage() {
           open={previewOpen}
           rows={previewRows}
           fieldDefs={ANIMAL_FIELDS}
-          keyColumn={previewRows[0] ? (Object.keys(previewRows[0]).find(k =>
-            ["caravana","numero","nro","tag","id"].includes(k.trim().toLowerCase())
-          ) ?? Object.keys(previewRows[0])[0]) : undefined}
           onConfirm={handleImport}
           onClose={() => setPreviewOpen(false)}
         />

@@ -67,7 +67,7 @@ function MiembrosInner({ estId, estNombre }: { estId: string; estNombre: string 
       .select("id, rol, created_at, user_id, profile:profiles(nombre, email)")
       .eq("establecimiento_id", estId)
       .order("created_at");
-    const items = (data as Miembro[]) ?? [];
+    const items = ((data as unknown) as Miembro[]) ?? [];
     setMiembros(items);
 
     const myRol = items.find(m => m.user_id === user.user?.id)?.rol ?? null;

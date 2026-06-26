@@ -264,7 +264,7 @@ function MovsPage() {
       else if (tipo === "muerte") updates.estado = "muerto";
       if (tipo === "traslado" && destPotId) updates.potrero_id = destPotId;
       if (Object.keys(updates).length > 0) {
-        await supabase.from("animales").update(updates).eq("id", id);
+        await supabase.from("animales").update(updates as never).eq("id", id);
       }
     }
 
