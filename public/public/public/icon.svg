@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="GanaderIA">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3f8f4f"/>
+      <stop offset="1" stop-color="#245e33"/>
+    </linearGradient>
+  </defs>
+  <rect x="0" y="0" width="512" height="512" fill="url(#bg)"/>
+  <g fill="none" stroke="#f7f6ee" stroke-width="36" stroke-linecap="round">
+    <path d="M210 178 L150 96"/>
+    <path d="M302 178 L362 96"/>
+  </g>
+  <ellipse cx="132" cy="270" rx="46" ry="28" fill="#f7f6ee"/>
+  <ellipse cx="380" cy="270" rx="46" ry="28" fill="#f7f6ee"/>
+  <ellipse cx="256" cy="280" rx="118" ry="132" fill="#f7f6ee"/>
+  <ellipse cx="256" cy="352" rx="72" ry="47" fill="#e6e5d9"/>
+  <ellipse cx="230" cy="352" rx="11" ry="15" fill="#245e33"/>
+  <ellipse cx="282" cy="352" rx="11" ry="15" fill="#245e33"/>
+  <ellipse cx="205" cy="250" rx="15" ry="20" fill="#245e33"/>
+  <ellipse cx="307" cy="250" rx="15" ry="20" fill="#245e33"/>
+</svg>
