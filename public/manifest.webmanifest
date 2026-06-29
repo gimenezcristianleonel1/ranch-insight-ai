@@ -1,0 +1,20 @@
+{
+  "name": "GanaderIA — Gestión Ganadera",
+  "short_name": "GanaderIA",
+  "description": "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera.",
+  "id": "/",
+  "start_url": "/dashboard",
+  "scope": "/",
+  "display": "standalone",
+  "display_override": ["standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
+  "background_color": "#245e33",
+  "theme_color": "#245e33",
+  "lang": "es",
+  "dir": "ltr",
+  "categories": ["business", "productivity", "agriculture"],
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
