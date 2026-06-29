@@ -78,24 +78,54 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
       { title: "GanaderIA — Gestión Ganadera" },
-      { name: "description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
+      {
+        name: "description",
+        content:
+          "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera.",
+      },
       { name: "author", content: "GanaderIA" },
+      // PWA / mobile
+      { name: "theme-color", content: "#245e33" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "default" },
+      { name: "apple-mobile-web-app-title", content: "GanaderIA" },
+      { name: "application-name", content: "GanaderIA" },
       { property: "og:title", content: "GanaderIA — Gestión Ganadera" },
-      { property: "og:description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
+      {
+        property: "og:description",
+        content:
+          "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:title", content: "GanaderIA — Gestión Ganadera" },
-      { name: "twitter:description", content: "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/356ae3b8-965c-49b0-86f1-643363737304" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/356ae3b8-965c-49b0-86f1-643363737304" },
+      {
+        name: "twitter:description",
+        content:
+          "Sistema integral de gestión de rodeo, reproducción, sanidad, forraje e IA ganadera.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/356ae3b8-965c-49b0-86f1-643363737304",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/356ae3b8-965c-49b0-86f1-643363737304",
+      },
     ],
     links: [
       {
         rel: "stylesheet",
         href: appCss,
       },
+      { rel: "manifest", href: "/manifest.webmanifest" },
+      { rel: "icon", type: "image/svg+xml", href: "/icon.svg" },
+      { rel: "apple-touch-icon", href: "/icon.svg" },
     ],
   }),
   shellComponent: RootShell,
@@ -131,6 +161,20 @@ function RootComponent() {
     });
     return () => sub.subscription.unsubscribe();
   }, [router, queryClient]);
+
+  // Register the PWA service worker (client-only, production builds).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (!("serviceWorker" in navigator)) return;
+    if (import.meta.env.DEV) return;
+    const register = () => {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        /* SW registration is best-effort; app works without it */
+      });
+    };
+    window.addEventListener("load", register);
+    return () => window.removeEventListener("load", register);
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
